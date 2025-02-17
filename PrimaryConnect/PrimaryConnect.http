@@ -1,0 +1,6 @@
+@PrimaryConnect_HostAddress = http://localhost:5071
+
+GET {{PrimaryConnect_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
