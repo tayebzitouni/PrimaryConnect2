@@ -36,16 +36,16 @@ namespace PrimaryConnect.Migrations
                     b.Property<bool>("IsJustified")
                         .HasColumnType("bit");
 
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("student_Id")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("student_Id");
+                    b.HasIndex("StudentId");
 
                     b.ToTable("absences");
                 });
@@ -77,17 +77,12 @@ namespace PrimaryConnect.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("SchoolId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("School_Id")
+                    b.Property<int>("SchoolId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SchoolId");
-
-                    b.HasIndex("School_Id");
 
                     b.ToTable("Administrators");
                 });
@@ -104,26 +99,21 @@ namespace PrimaryConnect.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentId")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Teacher_Id")
+                    b.Property<int>("TeacherId")
                         .HasColumnType("int");
 
                     b.Property<string>("VideoPath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("student_Id")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("StudentId");
 
-                    b.HasIndex("Teacher_Id");
-
-                    b.HasIndex("student_Id");
+                    b.HasIndex("TeacherId");
 
                     b.ToTable("courses");
                 });
@@ -160,17 +150,17 @@ namespace PrimaryConnect.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Event_Id")
+                    b.Property<int>("EventId")
                         .HasColumnType("int");
 
-                    b.Property<int>("student_Id")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Event_Id");
+                    b.HasIndex("EventId");
 
-                    b.HasIndex("student_Id");
+                    b.HasIndex("StudentId");
 
                     b.ToTable("events_Students");
                 });
@@ -186,16 +176,16 @@ namespace PrimaryConnect.Migrations
                     b.Property<int>("Mark")
                         .HasColumnType("int");
 
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("student_Id")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("student_Id");
+                    b.HasIndex("StudentId");
 
                     b.ToTable("marks");
                 });
@@ -265,27 +255,17 @@ namespace PrimaryConnect.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ParentId")
+                    b.Property<int>("ParentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Parent_Id")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SchoolId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("School_Id")
+                    b.Property<int>("SchoolId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
 
-                    b.HasIndex("Parent_Id");
-
                     b.HasIndex("SchoolId");
-
-                    b.HasIndex("School_Id");
 
                     b.ToTable("Students");
                 });
@@ -318,10 +298,7 @@ namespace PrimaryConnect.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("SchoolId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("School_Id")
+                    b.Property<int>("SchoolId")
                         .HasColumnType("int");
 
                     b.Property<string>("Subject")
@@ -331,8 +308,6 @@ namespace PrimaryConnect.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("SchoolId");
-
-                    b.HasIndex("School_Id");
 
                     b.ToTable("Teachers");
                 });
@@ -345,17 +320,17 @@ namespace PrimaryConnect.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Teacher_Id")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("student_Id")
+                    b.Property<int>("TeacherId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Teacher_Id");
+                    b.HasIndex("StudentId");
 
-                    b.HasIndex("student_Id");
+                    b.HasIndex("TeacherId");
 
                     b.ToTable("Teacher_Students");
                 });
@@ -364,7 +339,7 @@ namespace PrimaryConnect.Migrations
                 {
                     b.HasOne("PrimaryConnect.Models.Student", "student")
                         .WithMany("absences")
-                        .HasForeignKey("student_Id")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -373,13 +348,9 @@ namespace PrimaryConnect.Migrations
 
             modelBuilder.Entity("PrimaryConnect.Models.Administrator", b =>
                 {
-                    b.HasOne("PrimaryConnect.Models.School", null)
-                        .WithMany("administrators")
-                        .HasForeignKey("SchoolId");
-
                     b.HasOne("PrimaryConnect.Models.School", "School")
-                        .WithMany()
-                        .HasForeignKey("School_Id")
+                        .WithMany("administrators")
+                        .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -388,19 +359,15 @@ namespace PrimaryConnect.Migrations
 
             modelBuilder.Entity("PrimaryConnect.Models.Courses", b =>
                 {
-                    b.HasOne("PrimaryConnect.Models.Student", null)
+                    b.HasOne("PrimaryConnect.Models.Student", "student")
                         .WithMany("Courses")
-                        .HasForeignKey("StudentId");
-
-                    b.HasOne("PrimaryConnect.Models.Teacher", "Teacher")
-                        .WithMany("Courses")
-                        .HasForeignKey("Teacher_Id")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PrimaryConnect.Models.Student", "student")
-                        .WithMany()
-                        .HasForeignKey("student_Id")
+                    b.HasOne("PrimaryConnect.Models.Teacher", "Teacher")
+                        .WithMany("Courses")
+                        .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -411,19 +378,19 @@ namespace PrimaryConnect.Migrations
 
             modelBuilder.Entity("PrimaryConnect.Models.Event_Student", b =>
                 {
-                    b.HasOne("PrimaryConnect.Models.Event", "Event_P")
+                    b.HasOne("PrimaryConnect.Models.Event", "Event")
                         .WithMany("envent_student")
-                        .HasForeignKey("Event_Id")
+                        .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("PrimaryConnect.Models.Student", "student")
                         .WithMany("envent_student")
-                        .HasForeignKey("student_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Event_P");
+                    b.Navigation("Event");
 
                     b.Navigation("student");
                 });
@@ -432,7 +399,7 @@ namespace PrimaryConnect.Migrations
                 {
                     b.HasOne("PrimaryConnect.Models.Student", "student")
                         .WithMany("marks")
-                        .HasForeignKey("student_Id")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -441,23 +408,15 @@ namespace PrimaryConnect.Migrations
 
             modelBuilder.Entity("PrimaryConnect.Models.Student", b =>
                 {
-                    b.HasOne("PrimaryConnect.Models.Parent", null)
-                        .WithMany("students")
-                        .HasForeignKey("ParentId");
-
                     b.HasOne("PrimaryConnect.Models.Parent", "parent")
-                        .WithMany()
-                        .HasForeignKey("Parent_Id")
+                        .WithMany("students")
+                        .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PrimaryConnect.Models.School", null)
-                        .WithMany("students")
-                        .HasForeignKey("SchoolId");
-
                     b.HasOne("PrimaryConnect.Models.School", "school")
-                        .WithMany()
-                        .HasForeignKey("School_Id")
+                        .WithMany("students")
+                        .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -468,13 +427,9 @@ namespace PrimaryConnect.Migrations
 
             modelBuilder.Entity("PrimaryConnect.Models.Teacher", b =>
                 {
-                    b.HasOne("PrimaryConnect.Models.School", null)
-                        .WithMany("teachers")
-                        .HasForeignKey("SchoolId");
-
                     b.HasOne("PrimaryConnect.Models.School", "School")
-                        .WithMany()
-                        .HasForeignKey("School_Id")
+                        .WithMany("teachers")
+                        .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -483,16 +438,16 @@ namespace PrimaryConnect.Migrations
 
             modelBuilder.Entity("PrimaryConnect.Models.Teacher_Student", b =>
                 {
-                    b.HasOne("PrimaryConnect.Models.Teacher", "Teacher")
+                    b.HasOne("PrimaryConnect.Models.Student", "student")
                         .WithMany("Teachers_students")
-                        .HasForeignKey("Teacher_Id")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PrimaryConnect.Models.Student", "student")
+                    b.HasOne("PrimaryConnect.Models.Teacher", "Teacher")
                         .WithMany("Teachers_students")
-                        .HasForeignKey("student_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Teacher");

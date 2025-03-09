@@ -16,12 +16,10 @@ namespace PrimaryConnect.Models
         #endregion
         #region Foregnkeys 
 
-        [ForeignKey("parent")]
-        public int Parent_Id { get; set; }
+        public int ParentId { get; set; }
         public Parent parent { get; set; }
 
-        [ForeignKey("school")]
-        public int School_Id { get; set; }
+        public int SchoolId { get; set; }
         public School school { get; set; }
 
         public ICollection<Marks> marks { get; set; }

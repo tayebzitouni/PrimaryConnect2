@@ -8,8 +8,7 @@ namespace PrimaryConnect.Models
         public int Permitions { get; set; } 
 
 
-        [ForeignKey("School")]
-        public int School_Id { get; set; }
+        public int SchoolId { get; set; }
         public School School { get; set; }
     }
 }

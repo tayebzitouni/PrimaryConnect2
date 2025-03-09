@@ -9,13 +9,12 @@ namespace PrimaryConnect.Models
         public int Id { get; set; }
         #region Foregnkies 
 
-        [ForeignKey("student")]
-        public int student_Id { get; set; }
+ 
+        public int StudentId { get; set; }
         public Student student { get; set; }
 
-        [ForeignKey("Event_P")]
-        public int Event_Id { get; set; }
-        public Event Event_P { get; set; }
+       public int EventId { get; set; }
+        public Event Event { get; set; }
         #endregion
     }
 }

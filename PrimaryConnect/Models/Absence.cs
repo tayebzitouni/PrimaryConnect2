@@ -13,8 +13,8 @@ namespace PrimaryConnect.Models
         public bool IsJustified { get; set; }
         #endregion
         #region ForeignKeies
-        [ForeignKey("student")]
-        public int student_Id { get; set; }
+      
+        public int StudentId { get; set; }
         public Student student { get; set; }
 
         #endregion

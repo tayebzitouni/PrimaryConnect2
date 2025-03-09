@@ -8,11 +8,11 @@ namespace PrimaryConnect.Models
         [Key]
        public int Id { get; set; }
 
-        [ForeignKey("Teacher")]
-        public int Teacher_Id { get; set; }
+       
+        public int TeacherId { get; set; }
         public Teacher Teacher { get; set; }
-        [ForeignKey("student")]
-        public int student_Id { get; set; }
+       
+        public int StudentId { get; set; }
         public Student student { get; set; }
 
     }

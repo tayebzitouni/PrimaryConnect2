@@ -11,8 +11,8 @@ namespace PrimaryConnect.Models
         #region ForeignKeies
 
 
-        [ForeignKey("School")]
-        public int School_Id { get; set; }
+       
+        public int SchoolId { get; set; }
         public School School { get; set; }
 
         public ICollection<Teacher_Student> Teachers_students { get; set; }

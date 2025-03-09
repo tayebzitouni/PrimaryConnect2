@@ -10,11 +10,13 @@ namespace PrimaryConnect.Models
         public string HomeworkPath { get; set; }
         #endregion
         #region foregnkies
-        [ForeignKey("student")]
-        public int student_Id { get; set; }
+ 
+        //
+        //
+     public int StudentId { get; set; }
         public Student student { get; set; }
-        [ForeignKey("Teacher")]
-        public int Teacher_Id { get; set; }
+       
+        public int TeacherId { get; set; }
         public Teacher Teacher { get; set; }
 
 
