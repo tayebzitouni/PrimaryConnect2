@@ -14,8 +14,10 @@ namespace PrimaryConnect.Models
         public string Email { get; set; }
         public string Password { get; set; }
         public string PhoneNumber { get; set; }
-       
+
         #region foregnkeys
-           #endregion
+        public ICollection<ChatMessage> chatMessages { get; set; }
+        
+        #endregion
     }
 }

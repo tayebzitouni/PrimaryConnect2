@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.DependencyResolver;
 using PrimaryConnect.Data;
 using PrimaryConnect.Dto;
 using PrimaryConnect.Models;
@@ -12,6 +13,10 @@ namespace PrimaryConnect.Controllers
     [ApiController]
     public class AdministratorsController : ControllerBase
     {
+       
+        
+        
+        
         public AdministratorsController(AppDbContext appDbContext)
         {
             _PrimaryConnect_Db = appDbContext;
@@ -27,6 +32,8 @@ namespace PrimaryConnect.Controllers
             {
                 if (admin.Password == Password)
                 {
+                    HttpContext.Session.SetString("UserId", admin.Id.ToString());
+                    HttpContext.Session.SetString("UserRole", "admin");
                     return Ok(admin.Id);
                 }
                 else

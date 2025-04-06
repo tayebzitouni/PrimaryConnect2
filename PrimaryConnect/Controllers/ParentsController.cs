@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.DependencyResolver;
 using PrimaryConnect.Data;
 using PrimaryConnect.Dto;
 using PrimaryConnect.Models;
@@ -28,6 +29,8 @@ namespace PrimaryConnect.Controllers
             {
                 if (parent.Password == Password)
                 {
+                    HttpContext.Session.SetString("UserId", parent.Id.ToString());
+                    HttpContext.Session.SetString("UserRole", "parent");
                     return Ok(parent.Id);
                 }
                 else

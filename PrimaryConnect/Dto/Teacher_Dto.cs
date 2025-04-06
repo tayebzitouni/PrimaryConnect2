@@ -6,6 +6,7 @@ namespace PrimaryConnect.Dto
     {
         public string Subject { get; set; }
         public string Class { get; set; }
+
  public int SchoolId { get; set; }
         public Teacher ToTeacher()
         {

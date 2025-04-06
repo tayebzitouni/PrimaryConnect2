@@ -26,8 +26,10 @@ namespace PrimaryConnect.Controllers
             {
                 if (teacher.Password == Password)
                 {
-
+                    HttpContext.Session.SetString("UserId", teacher.Id.ToString());
+                    HttpContext.Session.SetString("UserRole", "teacher");
                     return Ok(teacher.Id );
+
                 }
                 else
                 {

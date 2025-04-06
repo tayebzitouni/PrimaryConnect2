@@ -19,6 +19,7 @@ namespace PrimaryConnect.Models
 
 
         public ICollection<Courses> Courses { get; set; }
+       
 
 
 

@@ -12,8 +12,8 @@ namespace PrimaryConnect.Models
         
         #region ForeignKeies
         public ICollection<Student> students { get; set; }
-      
         
+
         #endregion
     }
 }
