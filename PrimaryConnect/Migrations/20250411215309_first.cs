@@ -47,7 +47,19 @@ namespace PrimaryConnect.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "person",
+                name: "Parents",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Parents", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Person",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -61,7 +73,7 @@ namespace PrimaryConnect.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_person", x => x.Id);
+                    table.PrimaryKey("PK_Person", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -92,27 +104,9 @@ namespace PrimaryConnect.Migrations
                 {
                     table.PrimaryKey("PK_chatMessages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_chatMessages_person_UserId",
+                        name: "FK_chatMessages_Person_UserId",
                         column: x => x.UserId,
-                        principalTable: "person",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Parents",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Parents", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Parents_person_Id",
-                        column: x => x.Id,
-                        principalTable: "person",
+                        principalTable: "Person",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -121,49 +115,23 @@ namespace PrimaryConnect.Migrations
                 name: "Administrator",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                    id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Permitions = table.Column<int>(type: "INTEGER", nullable: false),
-                    SchoolId = table.Column<int>(type: "INTEGER", nullable: false)
+                    SchoolId = table.Column<int>(type: "INTEGER", nullable: false),
+                    personId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Administrator", x => x.Id);
+                    table.PrimaryKey("PK_Administrator", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Administrator_person_Id",
-                        column: x => x.Id,
-                        principalTable: "person",
+                        name: "FK_Administrator_Person_personId",
+                        column: x => x.personId,
+                        principalTable: "Person",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Administrator_schools_SchoolId",
-                        column: x => x.SchoolId,
-                        principalTable: "schools",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Teacher",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Subject = table.Column<string>(type: "TEXT", nullable: false),
-                    Class = table.Column<string>(type: "TEXT", nullable: false),
-                    SchoolId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Teacher", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Teacher_person_Id",
-                        column: x => x.Id,
-                        principalTable: "person",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Teacher_schools_SchoolId",
                         column: x => x.SchoolId,
                         principalTable: "schools",
                         principalColumn: "Id",
@@ -199,6 +167,33 @@ namespace PrimaryConnect.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Teacher",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Subject = table.Column<string>(type: "TEXT", nullable: false),
+                    Class = table.Column<string>(type: "TEXT", nullable: false),
+                    SchoolId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Teacher", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Teacher_Person_Id",
+                        column: x => x.Id,
+                        principalTable: "Person",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Teacher_schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalTable: "schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "absences",
                 columns: table => new
                 {
@@ -218,34 +213,6 @@ namespace PrimaryConnect.Migrations
                         principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "courses",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    VideoPath = table.Column<string>(type: "TEXT", nullable: false),
-                    HomeworkPath = table.Column<string>(type: "TEXT", nullable: false),
-                    StudentId = table.Column<int>(type: "INTEGER", nullable: false),
-                    TeacherId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_courses", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_courses_Students_StudentId",
-                        column: x => x.StudentId,
-                        principalTable: "Students",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_courses_Teacher_TeacherId",
-                        column: x => x.TeacherId,
-                        principalTable: "Teacher",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -296,6 +263,34 @@ namespace PrimaryConnect.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "courses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    VideoPath = table.Column<string>(type: "TEXT", nullable: false),
+                    HomeworkPath = table.Column<string>(type: "TEXT", nullable: false),
+                    StudentId = table.Column<int>(type: "INTEGER", nullable: false),
+                    TeacherId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_courses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_courses_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_courses_Teacher_TeacherId",
+                        column: x => x.TeacherId,
+                        principalTable: "Teacher",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Teacher_Students",
                 columns: table => new
                 {
@@ -325,6 +320,12 @@ namespace PrimaryConnect.Migrations
                 name: "IX_absences_StudentId",
                 table: "absences",
                 column: "StudentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Administrator_personId",
+                table: "Administrator",
+                column: "personId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Administrator_SchoolId",
@@ -427,10 +428,10 @@ namespace PrimaryConnect.Migrations
                 name: "Parents");
 
             migrationBuilder.DropTable(
-                name: "schools");
+                name: "Person");
 
             migrationBuilder.DropTable(
-                name: "person");
+                name: "schools");
         }
     }
 }

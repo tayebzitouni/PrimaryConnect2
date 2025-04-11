@@ -16,6 +16,7 @@ namespace PrimaryConnect.Data
         {
         }
         public DbSet<Student> Students { get; set; }
+        public DbSet<Person> people { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Parent> Parents { get; set; }
         public DbSet<Administrator> Administrators { get; set; }

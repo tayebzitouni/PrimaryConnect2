@@ -11,7 +11,7 @@ using PrimaryConnect.Data;
 namespace PrimaryConnect.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250411140007_first")]
+    [Migration("20250411215309_first")]
     partial class first
     {
         /// <inheritdoc />
@@ -44,6 +44,31 @@ namespace PrimaryConnect.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("absences");
+                });
+
+            modelBuilder.Entity("PrimaryConnect.Models.Administrator", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Permitions")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("personId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("SchoolId");
+
+                    b.HasIndex("personId")
+                        .IsUnique();
+
+                    b.ToTable("Administrator", (string)null);
                 });
 
             modelBuilder.Entity("PrimaryConnect.Models.ChatMessage", b =>
@@ -233,7 +258,7 @@ namespace PrimaryConnect.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("person");
+                    b.ToTable("Person");
 
                     b.UseTptMappingStrategy();
                 });
@@ -306,21 +331,6 @@ namespace PrimaryConnect.Migrations
                     b.ToTable("Teacher_Students");
                 });
 
-            modelBuilder.Entity("PrimaryConnect.Models.Administrator", b =>
-                {
-                    b.HasBaseType("PrimaryConnect.Models.Person");
-
-                    b.Property<int>("Permitions")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SchoolId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasIndex("SchoolId");
-
-                    b.ToTable("Administrator", (string)null);
-                });
-
             modelBuilder.Entity("PrimaryConnect.Models.Parent", b =>
                 {
                     b.HasBaseType("PrimaryConnect.Models.Person");
@@ -357,6 +367,25 @@ namespace PrimaryConnect.Migrations
                         .IsRequired();
 
                     b.Navigation("student");
+                });
+
+            modelBuilder.Entity("PrimaryConnect.Models.Administrator", b =>
+                {
+                    b.HasOne("PrimaryConnect.Models.School", "School")
+                        .WithMany("administrators")
+                        .HasForeignKey("SchoolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PrimaryConnect.Models.Person", "person")
+                        .WithOne("admin")
+                        .HasForeignKey("PrimaryConnect.Models.Administrator", "personId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("School");
+
+                    b.Navigation("person");
                 });
 
             modelBuilder.Entity("PrimaryConnect.Models.ChatMessage", b =>
@@ -457,32 +486,6 @@ namespace PrimaryConnect.Migrations
                     b.Navigation("student");
                 });
 
-            modelBuilder.Entity("PrimaryConnect.Models.Administrator", b =>
-                {
-                    b.HasOne("PrimaryConnect.Models.Person", null)
-                        .WithOne()
-                        .HasForeignKey("PrimaryConnect.Models.Administrator", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PrimaryConnect.Models.School", "School")
-                        .WithMany("administrators")
-                        .HasForeignKey("SchoolId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("School");
-                });
-
-            modelBuilder.Entity("PrimaryConnect.Models.Parent", b =>
-                {
-                    b.HasOne("PrimaryConnect.Models.Person", null)
-                        .WithOne()
-                        .HasForeignKey("PrimaryConnect.Models.Parent", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("PrimaryConnect.Models.Teacher", b =>
                 {
                     b.HasOne("PrimaryConnect.Models.Person", null)
@@ -507,6 +510,9 @@ namespace PrimaryConnect.Migrations
 
             modelBuilder.Entity("PrimaryConnect.Models.Person", b =>
                 {
+                    b.Navigation("admin")
+                        .IsRequired();
+
                     b.Navigation("chatMessages");
                 });
 

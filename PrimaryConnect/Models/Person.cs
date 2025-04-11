@@ -18,8 +18,8 @@ namespace PrimaryConnect.Models
         public string FcmToken { get; set; }
 
         #region foregnkeys
-        public ICollection<ChatMessage> chatMessages { get; set; }
-        
+        public ICollection<ChatMessage> ?chatMessages { get; set; }
+        public Administrator admin { get; set; }
         #endregion
     }
 }
