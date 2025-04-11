@@ -52,6 +52,7 @@
 
 //app.Run();
 using FirebaseAdmin;
+using Microsoft.EntityFrameworkCore;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 using PrimaryConnect;
@@ -70,7 +71,12 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-builder.Services.AddDbContext<AppDbContext>(op => op.UseSqlServer(builder.Configuration.GetConnectionString("conection")));
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+
+
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -87,7 +93,14 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true; // Makes the session cookie essential
 });
 var app = builder.Build();
-
+if (app.Environment.IsDevelopment())
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.EnsureCreated();
+    }
+}
 // ✅ Swagger doit être activé correctement
 if (app.Environment.IsDevelopment())
 {

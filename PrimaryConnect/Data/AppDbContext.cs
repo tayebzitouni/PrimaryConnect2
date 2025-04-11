@@ -7,9 +7,13 @@ namespace PrimaryConnect.Data
 {
     public class AppDbContext: DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+       
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+       : base(options) { 
+        
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-
         }
         public DbSet<Student> Students { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
@@ -23,7 +27,8 @@ namespace PrimaryConnect.Data
         public DbSet<Absence>   absences { get; set; }
         public DbSet<ChatMessage> chatMessages { get; set; }
         public DbSet<Teacher_Student> Teacher_Students { get; set; }  
-        public DbSet<Notification> notifications { get; set; }
+        public DbSet<NotificationRequest> notifications { get; set; }
+        public DbSet<Person> person { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Parent>().HasMany(p=>p.students).WithOne(s=>s.parent).HasForeignKey(s=>s.ParentId).OnDelete(DeleteBehavior.Restrict); ;
@@ -38,12 +43,13 @@ namespace PrimaryConnect.Data
             modelBuilder.Entity<Student>().HasMany<Absence>(p => p.absences).WithOne(s => s.student).HasForeignKey(s => s.StudentId);
             modelBuilder.Entity<Student>().HasMany<Event_Student>(p => p.envent_student).WithOne(s => s.student).HasForeignKey(s => s.StudentId).OnDelete(DeleteBehavior.Restrict);
          modelBuilder.Entity<Person>().HasMany<ChatMessage>(p => p.chatMessages).WithOne(s => s.person).HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<School>().HasMany<Administrator>(p => p.administrators).WithOne(s => s.School).HasForeignKey(s => s.SchoolId).OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<School>().HasMany<Administrator>(p => p.administrators).WithOne(s => s.School).HasForeignKey(s => s.SchoolId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<School>().HasMany<Student>(p => p.students).WithOne(s => s.school).HasForeignKey(s => s.SchoolId).OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Event>().HasMany<Event_Student>(p => p.envent_student).WithOne(s => s.Event).HasForeignKey(s => s.EventId);
 
-            
+           
+
             base.OnModelCreating(modelBuilder);
         }
     }

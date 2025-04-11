@@ -8,7 +8,7 @@ namespace PrimaryConnect.Models
         [Key]
         public int  Id { get; set; }
         public string Text { get; set; }
-       
+        public DateTime datetime { get; set; }
         #region foregnkeys
         public int UserId { get; set; }
         public Person person { get; set; }
