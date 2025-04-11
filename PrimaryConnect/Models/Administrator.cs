@@ -5,6 +5,7 @@ namespace PrimaryConnect.Models
     public class Administrator:Person
     {
         
+        
         public int Permitions { get; set; } 
 
 

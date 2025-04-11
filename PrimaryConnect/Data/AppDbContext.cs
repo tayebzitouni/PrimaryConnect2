@@ -48,7 +48,8 @@ namespace PrimaryConnect.Data
 
             modelBuilder.Entity<Event>().HasMany<Event_Student>(p => p.envent_student).WithOne(s => s.Event).HasForeignKey(s => s.EventId);
 
-           
+            modelBuilder.Entity<Teacher>().ToTable("Teacher");
+            modelBuilder.Entity<Administrator>().ToTable("Administrator");
 
             base.OnModelCreating(modelBuilder);
         }
