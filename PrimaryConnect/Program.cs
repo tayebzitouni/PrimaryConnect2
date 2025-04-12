@@ -57,9 +57,20 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 using PrimaryConnect;
 using PrimaryConnect.Data;
+using Microsoft.OpenApi.Models;
+using  Swashbuckle.AspNetCore.SwaggerGen;
+using System.Configuration;
 
-var builder = WebApplication.CreateBuilder(args);
 
+var options = new WebApplicationOptions
+{
+    WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")
+};
+
+var builder = WebApplication.CreateBuilder(options);
+
+
+ // Set WebRootPath manually if not set
 // Ajouter les services au conteneur
 builder.Services.AddCors(options =>
 {
@@ -71,7 +82,9 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-
+builder.Services.AddSingleton<IFileUploadPathProvider>(provider =>
+    new FileUploadPathProvider(builder.Environment.WebRootPath));
+//builder.Services.AddSingleton<IFileUploadPathProvider>(new FileUploadPathProvider(builder.Environment.WebRootPath));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
@@ -80,9 +93,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    c.OperationFilter<FileUploadOperation>(); // ✅ هذا هو المهم
+});
+
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<ChatHub>();
+
+
 
 
 builder.Services.AddDistributedMemoryCache(); // Or another distributed cache
@@ -92,6 +112,7 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true; // Important for security
     options.Cookie.IsEssential = true; // Makes the session cookie essential
 });
+//builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {

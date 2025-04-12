@@ -2,17 +2,17 @@
 
 namespace PrimaryConnect.Dto
 {
-    public class Teacher_Dto:Person
+    public class Teacher_Dto:PersonDto
     {
         public string Subject { get; set; }
-        public string Class { get; set; }
-
+        public int Classid { get; set; }
  public int SchoolId { get; set; }
+
         public Teacher ToTeacher()
         {
             Teacher teacher = new Teacher();    
             teacher.Subject = Subject;
-            teacher.Class = Class;
+            teacher.ClassId = Classid;
             teacher.Name = Name;
             teacher.Email = Email;
             teacher.SchoolId = SchoolId;

@@ -6,15 +6,15 @@ namespace PrimaryConnect.Models
     {
         #region Properties 
         public string Subject { get; set; }
-        public string Class { get; set; }
         #endregion
         #region ForeignKeies
 
+        public int ClassId { get; set; }
+        public Class myclass { get; set; }
 
-       
         public int SchoolId { get; set; }
         public School School { get; set; }
-
+        
         public ICollection<Teacher_Student> Teachers_students { get; set; }
 
 

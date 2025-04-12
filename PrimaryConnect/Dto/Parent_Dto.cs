@@ -2,7 +2,7 @@
 
 namespace PrimaryConnect.Dto
 {
-    public class Parent_Dto:Person
+    public class Parent_Dto:PersonDto
     {
         public override int Id { set; get; }
         public Parent ToParent()
@@ -13,7 +13,6 @@ _parent.Name = this.Name;
 _parent.Email = this.Email;
 _parent.PhoneNumber = this .PhoneNumber;
 _parent.Password = this.Password;
-
             return _parent;
         } 
     }

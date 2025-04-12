@@ -22,6 +22,8 @@ namespace PrimaryConnect.Models
         public int SchoolId { get; set; }
         public School school { get; set; }
 
+        public int ClassId { get; set; }
+        public Class myclass { get;set;}
         public ICollection<Marks> marks { get; set; }
         public ICollection<Absence> absences { get; set; }
         public ICollection< Courses> Courses { get; set; }

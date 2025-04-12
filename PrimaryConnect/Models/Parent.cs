@@ -5,6 +5,7 @@ namespace PrimaryConnect.Models
     public class Parent:Person
     {
         #region Properties 
+        
         #endregion 
        
 

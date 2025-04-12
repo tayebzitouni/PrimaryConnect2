@@ -11,7 +11,8 @@ namespace PrimaryConnect.Models
         #region foreignKeys
         public ICollection<Administrator>   administrators { get; set; }
         public ICollection <Teacher> teachers { get; set; } 
-        public  ICollection< Student> students { get; set; }    
+        public  ICollection< Student> students { get; set; }
+        public ICollection<Class> classs { get; set; }
 
 
         #endregion

@@ -47,10 +47,10 @@ namespace PrimaryConnect.Controllers
             {
                 Name = personDto.Name,
                 Email = personDto.Email,
-                Role = personDto.Role,
+               
                 Password = personDto.Password,
                 PhoneNumber = personDto.PhoneNumber,
-                FcmToken = personDto.FcmToken
+               
                 // Password will be handled separately
             };
 

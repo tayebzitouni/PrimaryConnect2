@@ -30,6 +30,8 @@ namespace PrimaryConnect.Data
         public DbSet<Teacher_Student> Teacher_Students { get; set; }  
         public DbSet<NotificationRequest> notifications { get; set; }
         public DbSet<Person> person { get; set; }
+        public DbSet<Homework> homeworks { get; set; }
+        public DbSet<Class> Classes { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Parent>().HasMany(p=>p.students).WithOne(s=>s.parent).HasForeignKey(s=>s.ParentId).OnDelete(DeleteBehavior.Restrict); ;
