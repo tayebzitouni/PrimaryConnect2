@@ -170,18 +170,21 @@ namespace PrimaryConnect.Migrations
                     b.Property<int?>("ClassId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("DateAssigned")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Title")
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -202,12 +205,22 @@ namespace PrimaryConnect.Migrations
                     b.Property<int>("Mark")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Remarque")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Semestre")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("StudentId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -280,6 +293,33 @@ namespace PrimaryConnect.Migrations
                     b.ToTable("Person");
 
                     b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity("PrimaryConnect.Models.Resource", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TeacherRemark")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("resources");
                 });
 
             modelBuilder.Entity("PrimaryConnect.Models.School", b =>

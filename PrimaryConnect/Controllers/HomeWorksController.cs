@@ -127,6 +127,7 @@ using System.Threading.Tasks;
 using PrimaryConnect.Models;
 using Microsoft.AspNetCore.Hosting;
 using PrimaryConnect.Dto;
+using Humanizer;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -157,12 +158,28 @@ public class HomeworkController : ControllerBase
             await dto.File.CopyToAsync(stream);
         }
 
+        string contentType = dto.File.ContentType;
+        string fileCategory = "";
+        if (contentType.StartsWith("image/"))
+            fileCategory = "Image";
+        else if (contentType.StartsWith("video/"))
+            fileCategory = "Video";
+        else if (contentType.StartsWith("audio/"))
+            fileCategory = "Audio";
+        else if (contentType == "application/pdf")
+            fileCategory = "PDF";
+        else
+            fileCategory = "Other";
+
         var baseHomework = new Homework
         {
-            Title = "Auto Homework",
-            Description = "Auto Description",
+
             FilePath = filePath,
-            DateAssigned = DateTime.Now
+            Type = fileCategory,
+            Subject = dto.Subject,
+            
+            StartDate = dto.StartDate,
+            EndDate = dto.EndDate
         };
 
         if (dto.AssignedToAll && dto.ClassId != null)
@@ -175,13 +192,14 @@ public class HomeworkController : ControllerBase
             {
                 _context.homeworks.Add(new Homework
                 {
-                    Title = baseHomework.Title,
-                    Description = baseHomework.Description,
                     FilePath = baseHomework.FilePath,
+                    Type = baseHomework.Type,
+                    Subject = baseHomework.Subject,
                     UserId = user.Id,
                     ClassId = dto.ClassId,
                     AssignedToAll = true,
-                    DateAssigned = baseHomework.DateAssigned
+                    StartDate = baseHomework.StartDate,
+                    EndDate = baseHomework.EndDate
                 });
             }
         }
@@ -204,9 +222,19 @@ public class HomeworkController : ControllerBase
     {
         var data = await _context.homeworks
             .Where(h => h.UserId == id)
+            .Select(h => new {
+                h.Id,
+                h.FilePath,
+                h.Subject,
+                StartDate = h.StartDate.ToString("yyyy-MM-dd"),
+                EndDate = h.EndDate.ToString("yyyy-MM-dd")
+
+            })
             .ToListAsync();
+
         return Ok(data);
     }
+
 
     // GET: api/homework/parent/5
     [HttpGet("parent/{id}")]
@@ -281,38 +309,7 @@ public class HomeworkController : ControllerBase
         return Ok("Multiple homeworks deleted");
     }
 
-    // PUT: api/homework/5
-    //[HttpPut("{id}")]
-    //public async Task<IActionResult> UpdateHomework(int id, [FromBody] HomeworkUpdateDto dto)
-    //{
-    //    var hw = await _context.homeworks.FindAsync(id);
-    //    if (hw == null) return NotFound();
-
-    //    hw.Title = dto.Title ?? hw.Title;
-    //    hw.Description = dto.Description ?? hw.Description;
-    //    hw.EndDate = dto.EndDate ?? hw.EndDate;
-
-    //    await _context.SaveChangesAsync();
-    //    return Ok("Homework updated");
-    //}
-
-    //// GET: api/homework/filters
-    //[HttpGet("filters")]
-    //public async Task<IActionResult> GetFilters()
-    //{
-    //    var subjects = await _context.homeworks
-    //        .Select(h => h.Subject)
-    //        .Distinct()
-    //        .ToListAsync();
-
-    //    var types = await _context.homeworks
-    //        .Select(h => Path.GetExtension(h.FilePath).ToLower())
-    //        .Distinct()
-    //        .ToListAsync();
-
-    //    return Ok(new { subjects, types });
-    //}
-
+   
 
     [HttpGet]
     public async Task<IActionResult> GetAllHomeworks()

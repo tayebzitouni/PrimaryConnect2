@@ -60,6 +60,8 @@ using PrimaryConnect.Data;
 using Microsoft.OpenApi.Models;
 using  Swashbuckle.AspNetCore.SwaggerGen;
 using System.Configuration;
+using Microsoft.AspNetCore.Http.Features;
+using System.Reflection;
 
 
 var options = new WebApplicationOptions
@@ -67,10 +69,22 @@ var options = new WebApplicationOptions
     WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")
 };
 
+
+
+
 var builder = WebApplication.CreateBuilder(options);
 
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 104857600; // 100 MB
+});
 
- // Set WebRootPath manually if not set
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 104857600; // 100 MB
+});
+
+// Set WebRootPath manually if not set
 // Ajouter les services au conteneur
 builder.Services.AddCors(options =>
 {
@@ -95,6 +109,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    //c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+
+    // Enable enum string values in Swagger UI
+    c.UseInlineDefinitionsForEnums();
+
+    // Include XML comments (optional but recommended)
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
     c.OperationFilter<FileUploadOperation>(); // ✅ هذا هو المهم
 });

@@ -8,6 +8,15 @@ namespace PrimaryConnect.Data
 {
     public class UsefulFunctions
     {
+
+        public enum Subject
+        {
+            MATH,
+            SCIENCE,
+            HISTORY,
+            LITERATURE
+        }
+
         static  public string GenerateandSendKey(string Email)
         {
             string fMail = "";

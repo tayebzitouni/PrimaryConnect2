@@ -30,7 +30,7 @@ namespace PrimaryConnect.Controllers
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> AddMark(Mark_Dto mark)
+        public async Task<IActionResult> AddMark([FromBody] Mark_Dto mark)
         {
             Marks _mark=mark.ToMark();
             _PrimaryConnect_Db.marks.Add(_mark);

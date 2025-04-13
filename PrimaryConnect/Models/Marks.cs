@@ -1,4 +1,5 @@
 ﻿using Microsoft.Identity.Client;
+using PrimaryConnect.Data;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,10 +10,15 @@ namespace PrimaryConnect.Models
         
         #region Properties 
         [Key]
-        public int Id { get; set; } 
-         public string Subject {  get; set; }    
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        public UsefulFunctions.Subject Subject {  get; set; }    
         public int Mark
         { get; set; }
+        public String Remarque { get; set; }
+        public int Semestre { get; set; }
+        public int Year { get; set; } 
+         
         #endregion
         #region ForeignKeies
 
