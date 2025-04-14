@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.DependencyResolver;
@@ -23,27 +24,12 @@ namespace PrimaryConnect.Controllers
         private AppDbContext _PrimaryConnect_Db;
 
 
-        [HttpGet("[action]")]
-        public async Task<IActionResult> Login(string Email, string Password)
-        {
-            Administrator? admin = await _PrimaryConnect_Db.Administrators.SingleOrDefaultAsync(admin => admin.Email == Email);
-            if (admin != null)
-            {
-                if (admin.Password == Password)
-                {
-                    HttpContext.Session.SetString("UserId", admin.Id.ToString());
-                    HttpContext.Session.SetString("UserRole", "admin");
-                    return Ok(admin.Id);
-                }
-                else
-                {
-                    return BadRequest("the Password is uncorrect");
-                }
+        //[HttpPost("login/admin")]
+        //public async Task<IActionResult> (string email, string password)
+        //{
+           
+        //}
 
-            }
-            else
-                return NotFound();
-        }
 
         [HttpGet("[action]")]
         public async Task<IActionResult> FrogetPassword(string Email)
@@ -67,7 +53,7 @@ namespace PrimaryConnect.Controllers
             return Ok();
 
         }
-
+        [Authorize]
         [HttpGet("GetAllAdmins")]
         public async Task<ActionResult<IEnumerable<Administrator>>> GetAllAdmins()
         {

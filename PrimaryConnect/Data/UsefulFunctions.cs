@@ -1,13 +1,19 @@
 ﻿using Microsoft.CodeAnalysis.Elfie.Model.Strings;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Mail;
+using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace PrimaryConnect.Data
 {
     public class UsefulFunctions
     {
+        
+
 
         public enum Subject
         {
@@ -39,5 +45,8 @@ namespace PrimaryConnect.Data
             smtpClient.Send(mailMessage);   
             return num.ToString();
         }
+
+
+     
     }
 }
