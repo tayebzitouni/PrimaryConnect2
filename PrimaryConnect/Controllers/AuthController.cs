@@ -106,7 +106,7 @@ namespace PrimaryConnect.Controllers
                 });
             }
 
-            return Unauthorized("Invalid Parent credentials");
+            return Unauthorized("Invalid Teacher credentials");
         }
 
         //[HttpPost("login/teacher")]
