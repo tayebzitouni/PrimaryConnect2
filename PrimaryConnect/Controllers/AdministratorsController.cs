@@ -16,7 +16,7 @@ namespace PrimaryConnect.Controllers
 
 
 
-
+       
         public AdministratorsController(AppDbContext appDbContext)
         {
             _PrimaryConnect_Db = appDbContext;
@@ -27,10 +27,10 @@ namespace PrimaryConnect.Controllers
         //[HttpPost("login/admin")]
         //public async Task<IActionResult> (string email, string password)
         //{
-           
+
         //}
 
-
+        [Authorize]
         [HttpGet("[action]")]
         public async Task<IActionResult> FrogetPassword(string Email)
         {
@@ -42,6 +42,7 @@ namespace PrimaryConnect.Controllers
             return NotFound();
 
         }
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> ChangePassword(string Email, string Password)
         {
@@ -53,7 +54,8 @@ namespace PrimaryConnect.Controllers
             return Ok();
 
         }
-        [Authorize]
+        
+        //[Authorize]
         [HttpGet("GetAllAdmins")]
         public async Task<ActionResult<IEnumerable<Administrator>>> GetAllAdmins()
         {
@@ -76,7 +78,7 @@ namespace PrimaryConnect.Controllers
         }
 
 
-
+        [Authorize]
         [HttpPost("AddAdmin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -95,7 +97,7 @@ namespace PrimaryConnect.Controllers
             return Ok(admin);
         }
 
-
+        [Authorize]
         // DELETE: api/admins/{id}
         [HttpDelete("{id}", Name = "DeleteAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -113,7 +115,7 @@ namespace PrimaryConnect.Controllers
 
             return NoContent(); // 204 No Content
         }
-
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
