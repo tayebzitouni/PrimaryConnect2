@@ -55,7 +55,7 @@ namespace PrimaryConnect.Controllers
 
         }
         
-        //[Authorize]
+        [Authorize]
         [HttpGet("GetAllAdmins")]
         public async Task<ActionResult<IEnumerable<Administrator>>> GetAllAdmins()
         {

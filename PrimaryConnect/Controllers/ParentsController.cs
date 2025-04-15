@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.DependencyResolver;
@@ -21,28 +22,8 @@ namespace PrimaryConnect.Controllers
         }
         private AppDbContext _PrimaryConnect_Db;
 
-        [HttpGet("[action]")]
-        public async Task<IActionResult> Login(string Email, string Password)
-        {
-            Parent? parent = await _PrimaryConnect_Db.Parents.SingleOrDefaultAsync(parent => parent.Email == Email);
-            if (parent != null)
-            {
-                if (parent.Password == Password)
-                {
-                    HttpContext.Session.SetString("UserId", parent.Id.ToString());
-                    HttpContext.Session.SetString("UserRole", "parent");
-                    return Ok(parent.Id);
-                }
-                else
-                {
-                    return BadRequest("the Password is uncorrect");
-                }
-
-            }
-            else
-                return NotFound();
-        }
-
+       
+        [Authorize]
         [HttpGet("[action]")]
         public async Task<IActionResult> FrogetPassword(string Email)
         {
@@ -54,6 +35,7 @@ namespace PrimaryConnect.Controllers
             return NotFound();
 
         }
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> ChangePassword(string Email, string Password)
         {
@@ -66,7 +48,7 @@ namespace PrimaryConnect.Controllers
 
         }
 
-
+        [Authorize]
         [HttpPost("AddParent")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -83,7 +65,7 @@ namespace PrimaryConnect.Controllers
             return CreatedAtAction(nameof(GetAllParents), new { id = parent.Id }, parent);
         }
 
-
+        [Authorize]
         // DELETE: api/admins/{id}
         [HttpDelete("{id}", Name = "DeleteParent")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -101,7 +83,7 @@ namespace PrimaryConnect.Controllers
 
             return NoContent(); // 204 No Content
         }
-
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

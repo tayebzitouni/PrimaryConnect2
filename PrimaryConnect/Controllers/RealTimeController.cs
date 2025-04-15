@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using PrimaryConnect;
 using PrimaryConnect.Data;
 using PrimaryConnect.Dto;
 using PrimaryConnect.Models;
+using System.Security.Claims;
 
 namespace PrimaryConnect.Controllers
 {
@@ -30,12 +32,15 @@ namespace PrimaryConnect.Controllers
         //    await _hubContext.Clients.All.SendAsync("NewMessage", message.Id, message.Text);
         //    return Ok(new { Status = "Message Sent" });
         //}
+        [Authorize]
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromBody] ChatMessageDto message)
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null)
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
                 return Unauthorized("يجب تسجيل الدخول أولًا.");
+
+            int userId = int.Parse(userIdClaim);
 
             if (string.IsNullOrWhiteSpace(message.Text))
                 return BadRequest("لا يمكن أن يكون محتوى الرسالة فارغًا.");
@@ -44,7 +49,7 @@ namespace PrimaryConnect.Controllers
             var chatMessage = new ChatMessage
             {
                 Text = message.Text,
-                UserId = userId.Value
+                UserId = userId
             };
 
             _context.chatMessages.Add(chatMessage);
@@ -60,6 +65,39 @@ namespace PrimaryConnect.Controllers
 
             return Ok(new { Status = "تم إرسال الرسالة وتخزينها." });
         }
+
+
+        //[Authorize]
+        //[HttpPost("send")]
+        //public async Task<IActionResult> SendMessage([FromBody] ChatMessageDto message)
+        //{
+        //    var userId = HttpContext.Session.GetInt32("UserId");
+        //    if (userId == null)
+        //        return Unauthorized("يجب تسجيل الدخول أولًا.");
+
+        //    if (string.IsNullOrWhiteSpace(message.Text))
+        //        return BadRequest("لا يمكن أن يكون محتوى الرسالة فارغًا.");
+
+        //    // حفظ الرسالة في قاعدة البيانات
+        //    var chatMessage = new ChatMessage
+        //    {
+        //        Text = message.Text,
+        //        UserId = userId.Value
+        //    };
+
+        //    _context.chatMessages.Add(chatMessage);
+        //    await _context.SaveChangesAsync();
+
+        //    // إرسال الرسالة لجميع المستخدمين عبر SignalR
+        //    await _hubContext.Clients.All.SendAsync("NewMessage", new
+        //    {
+        //        Id = chatMessage.Id,
+        //        Text = chatMessage.Text,
+        //        UserId = chatMessage.UserId
+        //    });
+
+        //    return Ok(new { Status = "تم إرسال الرسالة وتخزينها." });
+        //}
 
         [HttpGet("history")]
         public async Task<IActionResult> GetChatHistory()

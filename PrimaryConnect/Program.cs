@@ -186,6 +186,7 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true; // Important for security
     options.Cookie.IsEssential = true; // Makes the session cookie essential
 });
+
 //builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
@@ -215,11 +216,11 @@ FirebaseApp.Create(new AppOptions()
     Credential = GoogleCredential.FromFile("C:\\primaryconnect-572064dabd4d.json")
 });
 
-
+app.UseSession();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
+
 
 app.MapControllers();
 app.MapHub<ChatHub>("/chatHub");

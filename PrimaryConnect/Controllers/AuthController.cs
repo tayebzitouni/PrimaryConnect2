@@ -30,40 +30,111 @@ namespace PrimaryConnect.Controllers
 
             if (admin != null && admin.Password == password)
             {
+                // ✅ Store admin ID in session
+                HttpContext.Session.SetString("UserId", admin.Id.ToString());
+
+                // ✅ Generate JWT token
                 var token = GenerateJwtToken(admin.Id.ToString(), "Admin");
-                return Ok(new { role = "Admin", token });
+
+                return Ok(new
+                {
+                    role = "Admin",
+                    token
+                });
             }
 
             return Unauthorized("Invalid admin credentials");
         }
 
+        //[HttpPost("login/admin")]
+        //public async Task<IActionResult> AdminLogin(string email, string password)
+        //{
+        //    var admin = await _dbContext.Administrators.SingleOrDefaultAsync(a => a.Email == email);
+
+        //    if (admin != null && admin.Password == password)
+        //    {
+        //        var token = GenerateJwtToken(admin.Id.ToString(), "Admin");
+        //        return Ok(new { role = "Admin", token });
+        //    }
+
+        //    return Unauthorized("Invalid admin credentials");
+        //}
+
         // Teacher Login
-        [HttpPost("login/teacher")]
-        public async Task<IActionResult> TeacherLogin(string email, string password)
-        {
-            var teacher = await _dbContext.Teachers.SingleOrDefaultAsync(t => t.Email == email);
-            if (teacher != null && teacher.Password == password)
-            {
-                var token = GenerateJwtToken(teacher.Id.ToString(), "Teacher");
-                return Ok(new { role = "Teacher", token });
-            }
 
-            return Unauthorized("Invalid teacher credentials");
-        }
-
-        // Parent Login
-        [HttpPost("login/parent")]
+        [HttpPost("login/Parent")]
         public async Task<IActionResult> ParentLogin(string email, string password)
         {
-            var parent = await _dbContext.Parents.SingleOrDefaultAsync(p => p.Email == email);
-            if (parent != null && parent.Password == password)
+            var admin = await _dbContext.Parents.SingleOrDefaultAsync(a => a.Email == email);
+
+            if (admin != null && admin.Password == password)
             {
-                var token = GenerateJwtToken(parent.Id.ToString(), "Parent");
-                return Ok(new { role = "Parent", token });
+                // ✅ Store admin ID in session
+                HttpContext.Session.SetString("UserId", admin.Id.ToString());
+
+                // ✅ Generate JWT token
+                var token = GenerateJwtToken(admin.Id.ToString(), "Admin");
+
+                return Ok(new
+                {
+                    role = "Parent",
+                    token
+                });
             }
 
-            return Unauthorized("Invalid parent credentials");
+            return Unauthorized("Invalid Parent credentials");
         }
+
+
+        [HttpPost("login/Teacher")]
+        public async Task<IActionResult> TeacherLogin(string email, string password)
+        {
+            var admin = await _dbContext.Teachers.SingleOrDefaultAsync(a => a.Email == email);
+
+            if (admin != null && admin.Password == password)
+            {
+                // ✅ Store admin ID in session
+                HttpContext.Session.SetString("UserId", admin.Id.ToString());
+
+                // ✅ Generate JWT token
+                var token = GenerateJwtToken(admin.Id.ToString(), "Admin");
+
+                return Ok(new
+                {
+                    role = "Teacher",
+                    token
+                });
+            }
+
+            return Unauthorized("Invalid Parent credentials");
+        }
+
+        //[HttpPost("login/teacher")]
+        //public async Task<IActionResult> TeacherLogin(string email, string password)
+        //{
+        //    var teacher = await _dbContext.Teachers.SingleOrDefaultAsync(t => t.Email == email);
+        //    if (teacher != null && teacher.Password == password)
+        //    {
+        //        var token = GenerateJwtToken(teacher.Id.ToString(), "Teacher");
+        //        return Ok(new { role = "Teacher", token });
+        //    }
+
+        //    return Unauthorized("Invalid teacher credentials");
+        //}
+
+        // Parent Login
+        //[HttpPost("login/parent")]
+        //public async Task<IActionResult> ParentLogin(string email, string password)
+        //{
+        //    var parent = await _dbContext.Parents.SingleOrDefaultAsync(p => p.Email == email);
+        //    if (parent != null && parent.Password == password)
+        //    {
+        //        var token = GenerateJwtToken(parent.Id.ToString(), "Parent");
+        //        return Ok(new { role = "Parent", token });
+        //    }
+
+        //    return Unauthorized("Invalid parent credentials");
+        //}
 
         // Token generator method
         private string GenerateJwtToken(string userId, string role)
