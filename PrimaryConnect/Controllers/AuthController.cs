@@ -39,7 +39,14 @@ namespace PrimaryConnect.Controllers
                 return Ok(new
                 {
                     role = "Admin",
-                    token
+                    token,
+                    admin
+                    //admin.Id,
+                    //admin.Email,
+                    //admin.PhoneNumber,
+                    //admin.Password,
+                    //admin.Permitions,
+                    //admin.SchoolId
                 });
             }
 
@@ -78,7 +85,9 @@ namespace PrimaryConnect.Controllers
                 return Ok(new
                 {
                     role = "Parent",
-                    token
+                    token,
+                    admin
+                 
                 });
             }
 
@@ -102,7 +111,9 @@ namespace PrimaryConnect.Controllers
                 return Ok(new
                 {
                     role = "Teacher",
-                    token
+                    token,
+                    admin
+
                 });
             }
 

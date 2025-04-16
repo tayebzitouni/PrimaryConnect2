@@ -13,6 +13,7 @@ namespace PrimaryConnect.Dto
             Teacher teacher = new Teacher();    
             teacher.Subject = Subject;
             teacher.ClassId = Classid;
+            teacher.Password = Password;
             teacher.Name = Name;
             teacher.Email = Email;
             teacher.SchoolId = SchoolId;

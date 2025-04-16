@@ -11,8 +11,8 @@ namespace PrimaryConnect.Dto
     public class Mark_Dto
     {
         public int Id { get; set; }
-        [Required]
-        public UsefulFunctions.Subject subject { get; set; }
+        
+        public int  subjectid { get; set; }
         public int Mark{ get; set; }
        
        
@@ -25,9 +25,9 @@ namespace PrimaryConnect.Dto
         public Marks ToMark()
         {
             Marks marks = new Marks();  
-            marks.Id = Id;  
-            marks.Subject = subject;
-            marks.Mark = Mark;
+              
+            marks.SubjectId = subjectid;
+            marks.mark = Mark;
             marks.StudentId = StudentId;
             marks.Remarque = Remarque;
             marks.Semestre = Semestre;

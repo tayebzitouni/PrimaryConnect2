@@ -18,28 +18,7 @@ namespace PrimaryConnect.Controllers
         private AppDbContext _PrimaryConnect_Db;
 
 
-        [HttpGet("[action]")]
-        public async Task<IActionResult> Login(string Email, string Password)
-        {
-            Teacher? teacher = await _PrimaryConnect_Db.Teachers.SingleOrDefaultAsync(teacher => teacher.Email == Email);
-            if (teacher != null)
-            {
-                if (teacher.Password == Password)
-                {
-                    HttpContext.Session.SetString("UserId", teacher.Id.ToString());
-                    HttpContext.Session.SetString("UserRole", "teacher");
-                    return Ok(teacher.Id );
-
-                }
-                else
-                {
-                    return BadRequest("the Password is uncorrect");
-                }
-
-            }
-            else
-                return NotFound();
-        }
+       
 
         [HttpGet("GetAllTeachers")]
         public async Task<ActionResult<IEnumerable<Teacher>>> GetAllTeachers()
@@ -69,6 +48,8 @@ namespace PrimaryConnect.Controllers
             return Ok();
             
         }
+
+
 
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -127,28 +108,32 @@ namespace PrimaryConnect.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPut("{id}", Name = "UpdateTeacher")]
-        public async Task<IActionResult> UpdateTeacher(int id, Teacher_Dto teacher)
+        [HttpPost("edit-teacher/{id}")]
+        public async Task<IActionResult> EditTeacher(int id, Teacher_Dto teacher)
         {
-            if (id != teacher.Id)
-            {
-                return BadRequest("ID mismatch.");
-            }
-
-        Teacher? existingTeacher = await _PrimaryConnect_Db.Teachers.FindAsync(id);
+            var existingTeacher = await _PrimaryConnect_Db.Teachers.FindAsync(id);
             if (existingTeacher == null)
             {
                 return NotFound("Teacher not found.");
             }
 
+            // Only update fields if they are not null or empty (optional logic)
+            if (!string.IsNullOrWhiteSpace(teacher.Name))
+                existingTeacher.Name = teacher.Name;
 
+            if (!string.IsNullOrWhiteSpace(teacher.Email))
+                existingTeacher.Email = teacher.Email;
 
-            existingTeacher = teacher.ToTeacher();
+            if (!string.IsNullOrWhiteSpace(teacher.Subject))
+                existingTeacher.Subject = teacher.Subject;
 
+            if (!string.IsNullOrWhiteSpace(teacher.PhoneNumber))
+                existingTeacher.PhoneNumber = teacher.PhoneNumber;
+
+            // Add checks for any other fields you want to support updating
 
             await _PrimaryConnect_Db.SaveChangesAsync();
-
-            return NoContent(); // 204 No Content
+            return NoContent();
         }
 
 

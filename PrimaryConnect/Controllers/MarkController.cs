@@ -13,80 +13,122 @@ namespace PrimaryConnect.Controllers
     {
         public MarkController(AppDbContext appDbContext)
         {
-            _PrimaryConnect_Db = appDbContext;
+            _context = appDbContext;
         }
-        private AppDbContext _PrimaryConnect_Db;
+        private AppDbContext _context;
 
 
-        [HttpGet("[action]")]
-        public async Task<IActionResult> GetAllById(int id)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Mark_Dto>>> GetAllMarks()
         {
-            return Ok(await _PrimaryConnect_Db.marks.Where(m=>m.StudentId==id).ToListAsync());
+            return await _context.marks
+                .Select(m => new Mark_Dto
+                {
+                    Id = m.Id,
+                    subjectid = m.SubjectId,
+                    Mark = m.mark,
+                    Remarque = m.Remarque,
+                    Semestre = m.Semestre,
+                    Year = m.Year,
+                    StudentId = m.StudentId
+                })
+                .ToListAsync();
         }
 
-
-
-
-        [HttpPost("[action]")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> AddMark([FromBody] Mark_Dto mark)
+        // GET: api/Marks/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Mark_Dto>> GetMarkById(int id)
         {
-            Marks _mark=mark.ToMark();
-            _PrimaryConnect_Db.marks.Add(_mark);
-            try
+            var mark = await _context.marks.FindAsync(id);
+            if (mark == null)
+                return NotFound();
+
+            return new Mark_Dto
             {
-                await _PrimaryConnect_Db.SaveChangesAsync();
-            }
-            catch
-            { return BadRequest(); }
-
-            return Ok(mark);
+                Id = mark.Id,
+                subjectid = mark.SubjectId,
+                Mark = mark.mark,
+                Remarque = mark.Remarque,
+                Semestre = mark.Semestre,
+                Year = mark.Year,
+                StudentId = mark.StudentId
+            };
         }
 
+        // GET: api/Marks/get-student-marks?studentId=1&semester=1&year=2024
+        [HttpGet("get-student-marks")]
+        public async Task<ActionResult<IEnumerable<Mark_Dto>>> GetStudentMarks(int studentId, int semester, int year)
+        {
+            var marks = await _context.marks
+                .Where(m => m.StudentId == studentId && m.Semestre == semester && m.Year == year)
+                .Select(m => new Mark_Dto
+                {
+                    Id = m.Id,
+                    subjectid = m.SubjectId,
+                    Mark = m.mark,
+                    Remarque = m.Remarque,
+                    Semestre = m.Semestre,
+                    Year = m.Year,
+                    StudentId = m.StudentId
+                })
+                .ToListAsync();
 
-        // DELETE: api/admins/{id}
-        [HttpDelete("{id}", Name = "DeleteMark")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+            if (!marks.Any())
+                return NotFound("No marks found for the specified parameters.");
+
+            return Ok(marks);
+        }
+
+        // POST: api/Marks
+        [HttpPost]
+        public async Task<ActionResult<Mark_Dto>> CreateMark(Mark_Dto markDto)
+        {
+            var mark = markDto.ToMark();
+            _context.marks.Add(mark);
+            await _context.SaveChangesAsync();
+
+            markDto.Id = mark.Id;
+            return CreatedAtAction(nameof(GetMarkById), new { id = mark.Id }, markDto);
+        }
+
+        // PUT: api/Marks/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMark(int id, Mark_Dto markDto)
+        {
+            if (id != markDto.Id)
+                return BadRequest();
+
+            var mark = await _context.marks.FindAsync(id);
+            if (mark == null)
+                return NotFound();
+
+            mark.SubjectId = markDto.subjectid;
+            mark.mark = markDto.Mark;
+            mark.Remarque = markDto.Remarque;
+            mark.Semestre = markDto.Semestre;
+            mark.Year = markDto.Year;
+            mark.StudentId = markDto.StudentId;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // DELETE: api/Marks/{id}
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMark(int id)
         {
-           Marks? mark = await _PrimaryConnect_Db.marks.FindAsync(id);
+            var mark = await _context.marks.FindAsync(id);
             if (mark == null)
-            {
-                return NotFound("Admin not found.");
-            }
+                return NotFound();
 
-            _PrimaryConnect_Db.marks.Remove(mark);
-            await _PrimaryConnect_Db.SaveChangesAsync();
+            _context.marks.Remove(mark);
+            await _context.SaveChangesAsync();
 
-            return NoContent(); // 204 No Content
+            return NoContent();
         }
-
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPut("{id}", Name = "UpdateMark")]
-        public async Task<IActionResult> UpdateMark(int id, Mark_Dto UpdatedMark)
-        {
-            if (id != UpdatedMark.Id)
-            {
-                return BadRequest("ID mismatch.");
-            }
-
-            Marks? existingMark = await _PrimaryConnect_Db.marks.FindAsync(id);
-            if (existingMark == null)
-            {
-                return NotFound("Admin not found.");
-            }
-            existingMark = UpdatedMark.ToMark();
-
-            await _PrimaryConnect_Db.SaveChangesAsync();
-
-            return NoContent(); // 204 No Content
-        }
-
-
-
     }
+
+
 }
+

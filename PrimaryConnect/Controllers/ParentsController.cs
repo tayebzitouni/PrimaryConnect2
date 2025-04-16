@@ -1,12 +1,15 @@
 ﻿
+using Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.DependencyResolver;
+using OfficeOpenXml;
 using PrimaryConnect.Data;
 using PrimaryConnect.Dto;
 using PrimaryConnect.Models;
 using System;
+using static System.Net.Mime.MediaTypeNames;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -48,7 +51,7 @@ namespace PrimaryConnect.Controllers
 
         }
 
-        [Authorize]
+        
         [HttpPost("AddParent")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -133,6 +136,69 @@ namespace PrimaryConnect.Controllers
         {
             return await _PrimaryConnect_Db.Parents.ToListAsync();
         }
+
+        //[HttpPost("upload")]
+        //public async Task<ActionResult> ImportStudentsFromExcel(IFormFile file)
+        //{
+        //    // List of supported Excel extensions
+        //    var supportedExtensions = new[] { ".xlsx", ".xls", ".xlsm", ".xlsb" };
+        //    var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        //    if (string.IsNullOrEmpty(fileExtension) || !supportedExtensions.Contains(fileExtension))
+        //    {
+        //        return BadRequest("Supported Excel formats: .xlsx, .xls, .xlsm, .xlsb");
+        //    }
+
+        //    ExcelPackage.License.SetNonCommercialOrganization("My Noncommercial organization");
+
+        //    using var stream = new MemoryStream();
+        //    await file.CopyToAsync(stream);
+
+        //    // For .xls files (older format), we need to convert to .xlsx first
+        //    if (fileExtension == ".xls")
+        //    {
+        //        // Convert .xls to .xlsx format in memory
+        //        using (var excelEngine = new ExcelEngine())
+        //        {
+        //            IApplication application = excelEngine.Excel;
+        //            application.DefaultVersion = ExcelVersion.Excel2016;
+
+        //            // Open the .xls file
+        //            IWorkbook workbook = application.Workbooks.Open(stream);
+
+        //            // Convert to .xlsx in memory
+        //            var xlsxStream = new MemoryStream();
+        //            workbook.SaveAs(xlsxStream, ExcelSaveType.SaveAsXlsx);
+        //            xlsxStream.Position = 0;
+
+        //            // Use the converted stream
+        //            stream.Dispose(); // Dispose the original stream
+        //            stream = xlsxStream; // Use the converted stream
+        //        }
+        //    }
+
+        //    using var package = new ExcelPackage(stream);
+        //    var worksheet = package.Workbook.Worksheets[0];
+        //    var rowCount = worksheet.Dimension.Rows;
+
+        //    var students = new List<Parent>();
+
+        //    for (int row = 2; row <= rowCount; row++)
+        //    {
+        //        var student = new Parent
+        //        {
+        //            Name = worksheet.Cells[row, 1].Text,
+        //            Email = worksheet.Cells[row, 2].Text,
+        //            Password = worksheet.Cells[row, 3].Text,
+        //            PhoneNumber = worksheet.Cells[row, 4].Text
+        //        };
+        //        students.Add(student);
+        //    }
+
+        //    _PrimaryConnect_Db.Parents.AddRange(students);
+        //    await _PrimaryConnect_Db.SaveChangesAsync();
+        //    return Ok("Added Successfully");
+        //}
 
 
     }

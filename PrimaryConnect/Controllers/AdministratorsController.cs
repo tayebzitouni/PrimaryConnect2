@@ -55,7 +55,7 @@ namespace PrimaryConnect.Controllers
 
         }
         
-        [Authorize]
+        
         [HttpGet("GetAllAdmins")]
         public async Task<ActionResult<IEnumerable<Administrator>>> GetAllAdmins()
         {
@@ -78,7 +78,7 @@ namespace PrimaryConnect.Controllers
         }
 
 
-        [Authorize]
+        
         [HttpPost("AddAdmin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -132,11 +132,19 @@ namespace PrimaryConnect.Controllers
             {
                 return NotFound("Admin not found.");
             }
-            existingAdmin = updatedAdmin.ToAdministrator();
+
+            // Map fields manually or use a mapper
+            existingAdmin.Name = updatedAdmin.Name;
+            existingAdmin.Email = updatedAdmin.Email;
+            existingAdmin.PhoneNumber = updatedAdmin.PhoneNumber ;
+            existingAdmin.Password = updatedAdmin.Password;
+            existingAdmin.Permitions = updatedAdmin.Permitions; 
+
+            // Add other fields as necessary...
 
             await _PrimaryConnect_Db.SaveChangesAsync();
 
-            return NoContent(); // 204 No Content
+            return NoContent();
         }
 
 

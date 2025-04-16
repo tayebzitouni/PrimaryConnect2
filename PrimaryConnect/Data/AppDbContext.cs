@@ -33,6 +33,7 @@ namespace PrimaryConnect.Data
         public DbSet<Homework> homeworks { get; set; }
         public DbSet<Class> Classes { get; set; }
         public DbSet<Resource> resources { get; set; }
+        public DbSet<Subject> subjects { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Parent>().HasMany(p=>p.students).WithOne(s=>s.parent).HasForeignKey(s=>s.ParentId).OnDelete(DeleteBehavior.Restrict); ;

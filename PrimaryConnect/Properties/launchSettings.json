@@ -36,6 +36,13 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+        "EPPlus": {
+          "ExcelPackage": {
+            "LicenseContext": "NonCommercial" //The license context used
+          }
+        }
+      }
     }
   }
 }
