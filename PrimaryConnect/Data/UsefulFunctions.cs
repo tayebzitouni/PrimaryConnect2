@@ -15,12 +15,9 @@ namespace PrimaryConnect.Data
         
 
 
-        public enum Subject
+        public enum DeliveryMethode
         {
-            MATH,
-            SCIENCE,
-            HISTORY,
-            LITERATURE
+            Email = 1 , Pickup =2
         }
 
         static  public string GenerateandSendKey(string Email)

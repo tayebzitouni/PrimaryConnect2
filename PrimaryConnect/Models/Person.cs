@@ -18,7 +18,6 @@ namespace PrimaryConnect.Models
 
         #region foregnkeys
         public ICollection<ChatMessage> chatMessages { get; set; }
-
         #endregion
     }
 }

@@ -137,6 +137,48 @@ namespace PrimaryConnect.Controllers
             return await _PrimaryConnect_Db.Parents.ToListAsync();
         }
 
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadExcel(IFormFile file)
+        {
+
+            ExcelPackage.License.SetNonCommercialOrganization("My Noncommercial organization");
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var parents = new List<Parent>();
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                using (var package = new ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+                    var rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 2; row <= rowCount; row++) // assuming row 1 is header
+                    {
+                        var dto = new Parent_Dto
+                        {
+                            Name = worksheet.Cells[row, 1].Text,
+                            Email = worksheet.Cells[row, 2].Text,
+                            PhoneNumber = worksheet.Cells[row, 3].Text,
+                            Password = worksheet.Cells[row, 4].Text
+                        };
+
+                        parents.Add(dto.ToParent());
+                    }
+                }
+            }
+
+            _PrimaryConnect_Db.Parents.AddRange(parents);
+            await _PrimaryConnect_Db.SaveChangesAsync();
+
+            return Ok($"{parents.Count} parents uploaded successfully.");
+        }
+
+
+
         //[HttpPost("upload")]
         //public async Task<ActionResult> ImportStudentsFromExcel(IFormFile file)
         //{

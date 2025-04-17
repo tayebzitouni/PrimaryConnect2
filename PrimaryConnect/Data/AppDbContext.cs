@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
+using PrimaryConnect.Controllers;
 using PrimaryConnect.Models;
 
 
@@ -34,6 +35,9 @@ namespace PrimaryConnect.Data
         public DbSet<Class> Classes { get; set; }
         public DbSet<Resource> resources { get; set; }
         public DbSet<Subject> subjects { get; set; }
+        public DbSet<Document> documents { get; set; }
+        public  DbSet<RequestDocument> requests { get; set; }
+        public DbSet<Teacher_Class> TeacherClasses { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Parent>().HasMany(p=>p.students).WithOne(s=>s.parent).HasForeignKey(s=>s.ParentId).OnDelete(DeleteBehavior.Restrict); ;

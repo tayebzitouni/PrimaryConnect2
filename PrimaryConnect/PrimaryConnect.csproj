@@ -36,6 +36,8 @@
 
   <ItemGroup>
     <Folder Include="Files\" />
+    <Folder Include="wwwroot\SubmitedDocuments\Parent\" />
+    <Folder Include="wwwroot\SubmitedDocuments\Teacher\" />
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 

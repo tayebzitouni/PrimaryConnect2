@@ -8,6 +8,17 @@ namespace PrimaryConnect.Dto
 
 
 
+
+
+
+
+
+
+
+
+
+
+
     public class Mark_Dto
     {
         public int Id { get; set; }

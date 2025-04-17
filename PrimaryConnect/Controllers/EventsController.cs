@@ -32,8 +32,7 @@ namespace PrimaryConnect.Controllers
 
 
 
-
-        [HttpPost("[action]")]
+        [HttpPost("{Event}")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddEvent(Event_Dto Event)

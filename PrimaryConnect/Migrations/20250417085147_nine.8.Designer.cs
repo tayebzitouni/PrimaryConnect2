@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PrimaryConnect.Data;
 
@@ -10,9 +11,11 @@ using PrimaryConnect.Data;
 namespace PrimaryConnect.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250417085147_nine.8")]
+    partial class nine8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
@@ -483,10 +486,6 @@ namespace PrimaryConnect.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Assignementdate")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("ClassId")
                         .HasColumnType("INTEGER");
 
@@ -499,7 +498,7 @@ namespace PrimaryConnect.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("TeacherClasses");
+                    b.ToTable("Teacher_Class");
                 });
 
             modelBuilder.Entity("PrimaryConnect.Models.Teacher_Student", b =>
@@ -721,7 +720,7 @@ namespace PrimaryConnect.Migrations
             modelBuilder.Entity("PrimaryConnect.Models.Teacher_Class", b =>
                 {
                     b.HasOne("PrimaryConnect.Models.Class", "Class")
-                        .WithMany("teacher_Classes")
+                        .WithMany()
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -810,8 +809,6 @@ namespace PrimaryConnect.Migrations
             modelBuilder.Entity("PrimaryConnect.Models.Class", b =>
                 {
                     b.Navigation("students");
-
-                    b.Navigation("teacher_Classes");
 
                     b.Navigation("teachers");
                 });

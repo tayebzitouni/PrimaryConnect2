@@ -32,7 +32,7 @@ namespace PrimaryConnect.Controllers
             {
                 // ✅ Store admin ID in session
                 HttpContext.Session.SetString("UserId", admin.Id.ToString());
-
+                HttpContext.Session.SetString("Role", "Admin");
                 // ✅ Generate JWT token
                 var token = GenerateJwtToken(admin.Id.ToString(), "Admin");
 
@@ -78,9 +78,9 @@ namespace PrimaryConnect.Controllers
             {
                 // ✅ Store admin ID in session
                 HttpContext.Session.SetString("UserId", admin.Id.ToString());
-
+                HttpContext.Session.SetString("Role","Parent");
                 // ✅ Generate JWT token
-                var token = GenerateJwtToken(admin.Id.ToString(), "Admin");
+                var token = GenerateJwtToken(admin.Id.ToString(), "Parent");
 
                 return Ok(new
                 {
@@ -104,9 +104,10 @@ namespace PrimaryConnect.Controllers
             {
                 // ✅ Store admin ID in session
                 HttpContext.Session.SetString("UserId", admin.Id.ToString());
+                HttpContext.Session.SetString("Role", "Teacher");
 
                 // ✅ Generate JWT token
-                var token = GenerateJwtToken(admin.Id.ToString(), "Admin");
+                var token = GenerateJwtToken(admin.Id.ToString(), "Teacher");
 
                 return Ok(new
                 {
