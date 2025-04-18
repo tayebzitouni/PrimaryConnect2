@@ -97,7 +97,7 @@ namespace PrimaryConnect.Controllers
             return Ok(admin);
         }
 
-        [Authorize]
+        
         // DELETE: api/admins/{id}
         [HttpDelete("{id}", Name = "DeleteAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
