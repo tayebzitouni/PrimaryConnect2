@@ -1,4 +1,6 @@
 ﻿
+using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Math;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -169,7 +171,12 @@ namespace PrimaryConnect.Controllers
         [HttpGet("download-student-template")]
         public IActionResult DownloadStudentTemplate()
         {
-            var stream = UsefulFunctions.CreateExcelWithDropdowns();
+            // Example: Fetch from DB
+            var parents = _PrimaryConnect_Db.Parents.Select(p => p.Name).ToList();
+            var schools = _PrimaryConnect_Db.schools.Select(s => s.Name).ToList();
+            var classes = _PrimaryConnect_Db.Classes.Select(c => c.name).ToList();
+
+            var stream = UsefulFunctions.CreateExcelWithDropdowns(parents, schools, classes);
 
             return File(
                 fileStream: stream,
@@ -177,6 +184,75 @@ namespace PrimaryConnect.Controllers
                 fileDownloadName: "StudentTemplate.xlsx"
             );
         }
+
+        [HttpPost("upload-students")]
+        public async Task<IActionResult> UploadStudents(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("File is empty");
+
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            using var workbook = new XLWorkbook(stream);
+            var ws = workbook.Worksheet("Students");
+
+            if (ws == null)
+                return BadRequest("Worksheet 'Students' not found.");
+
+            // Cache reference data (Name -> ID)
+            var parentDict = _PrimaryConnect_Db.Parents.ToDictionary(p => p.Name.Trim(), p => p.Id);
+            var schoolDict = _PrimaryConnect_Db.schools.ToDictionary(s => s.Name.Trim(), s => s.Id);
+            var classDict = _PrimaryConnect_Db.Classes.ToDictionary(c => c.name.Trim(), c => c.id);
+
+            var students = new List<Student>();
+
+            int row = 2; // Row 1 = headers
+
+            while (!string.IsNullOrWhiteSpace(ws.Cell(row, 1).GetString()))
+            {
+                var name = ws.Cell(row, 1).GetString().Trim();
+                var ageStr = ws.Cell(row, 2).GetString().Trim();
+                var parentName = ws.Cell(row, 3).GetString().Trim();
+                var schoolName = ws.Cell(row, 4).GetString().Trim();
+                var className = ws.Cell(row, 5).GetString().Trim();
+
+                if (!int.TryParse(ageStr, out int age))
+                {
+                    row++;
+                    continue; // skip invalid age
+                }
+
+                // Match names to IDs
+                if (!parentDict.TryGetValue(parentName, out var parentId) ||
+                    !schoolDict.TryGetValue(schoolName, out var schoolId) ||
+                    !classDict.TryGetValue(className, out var classId))
+                {
+                    row++;
+                    continue; // skip if any lookup fails
+                }
+
+                students.Add(new Student
+                {
+                    Name = name,
+                    Degree = age,
+                    ParentId = parentId,
+                    SchoolId = schoolId,
+                    ClassId = classId
+                });
+
+                row++;
+            }
+
+            if (!students.Any())
+                return BadRequest("No valid students found in the file.");
+
+            // Save to DB
+            _PrimaryConnect_Db.Students.AddRange(students);
+            await _PrimaryConnect_Db.SaveChangesAsync();
+
+            return Ok(new { Added = students.Count });
+        }
+
 
     }
 

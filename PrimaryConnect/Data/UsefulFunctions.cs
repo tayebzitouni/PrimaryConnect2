@@ -91,7 +91,52 @@ namespace PrimaryConnect.Data
         //        // 5. Save
         //        wb.SaveAs("StudentTemplate_Fixed.xlsx");
         //    }
-        public static MemoryStream CreateExcelWithDropdowns()
+        //public static MemoryStream CreateExcelWithDropdowns()
+        //{
+        //    var stream = new MemoryStream();
+        //    var wb = new XLWorkbook();
+
+        //    // Options Sheet
+        //    var wsOptions = wb.AddWorksheet("Options");
+        //    wsOptions.Cell("A1").Value = "Parents";
+        //    wsOptions.Cell("A2").Value = "John Doe";
+        //    wsOptions.Cell("A3").Value = "Jane Smith";
+
+        //    wsOptions.Cell("B1").Value = "Schools";
+        //    wsOptions.Cell("B2").Value = "High School A";
+        //    wsOptions.Cell("B3").Value = "Elementary B";
+
+        //    wsOptions.Cell("C1").Value = "Classes";
+        //    wsOptions.Cell("C2").Value = "Math";
+        //    wsOptions.Cell("C3").Value = "Science";
+
+        //    // Named Ranges
+        //    wb.NamedRanges.Add("ParentList", wsOptions.Range("A2:A3"));
+        //    wb.NamedRanges.Add("SchoolList", wsOptions.Range("B2:B3"));
+        //    wb.NamedRanges.Add("ClassList", wsOptions.Range("C2:C3"));
+
+        //    // Students Sheet
+        //    var wsStudents = wb.AddWorksheet("Students");
+        //    wsStudents.Cell("A1").Value = "Student";
+        //    wsStudents.Cell("B1").Value = "Age";
+        //    wsStudents.Cell("C1").Value = "Parent";
+        //    wsStudents.Cell("D1").Value = "School";
+        //    wsStudents.Cell("E1").Value = "Class";
+
+        //    // Data Validation on columns
+        //    wsStudents.Column("C").SetDataValidation().List("ParentList");
+        //    wsStudents.Column("D").SetDataValidation().List("SchoolList");
+        //    wsStudents.Column("E").SetDataValidation().List("ClassList");
+
+        //    wb.SaveAs(stream);
+        //    stream.Position = 0;
+        //    return stream;
+        //}
+        public static MemoryStream CreateExcelWithDropdowns(
+    List<string> parents,
+    List<string> schools,
+    List<string> classes
+)
         {
             var stream = new MemoryStream();
             var wb = new XLWorkbook();
@@ -99,31 +144,32 @@ namespace PrimaryConnect.Data
             // Options Sheet
             var wsOptions = wb.AddWorksheet("Options");
             wsOptions.Cell("A1").Value = "Parents";
-            wsOptions.Cell("A2").Value = "John Doe";
-            wsOptions.Cell("A3").Value = "Jane Smith";
-
             wsOptions.Cell("B1").Value = "Schools";
-            wsOptions.Cell("B2").Value = "High School A";
-            wsOptions.Cell("B3").Value = "Elementary B";
-
             wsOptions.Cell("C1").Value = "Classes";
-            wsOptions.Cell("C2").Value = "Math";
-            wsOptions.Cell("C3").Value = "Science";
+
+            for (int i = 0; i < parents.Count; i++)
+                wsOptions.Cell(i + 2, 1).Value = parents[i];
+
+            for (int i = 0; i < schools.Count; i++)
+                wsOptions.Cell(i + 2, 2).Value = schools[i];
+
+            for (int i = 0; i < classes.Count; i++)
+                wsOptions.Cell(i + 2, 3).Value = classes[i];
 
             // Named Ranges
-            wb.NamedRanges.Add("ParentList", wsOptions.Range("A2:A3"));
-            wb.NamedRanges.Add("SchoolList", wsOptions.Range("B2:B3"));
-            wb.NamedRanges.Add("ClassList", wsOptions.Range("C2:C3"));
+            wb.NamedRanges.Add("ParentList", wsOptions.Range(2, 1, parents.Count + 1, 1));
+            wb.NamedRanges.Add("SchoolList", wsOptions.Range(2, 2, schools.Count + 1, 2));
+            wb.NamedRanges.Add("ClassList", wsOptions.Range(2, 3, classes.Count + 1, 3));
 
             // Students Sheet
             var wsStudents = wb.AddWorksheet("Students");
             wsStudents.Cell("A1").Value = "Student";
-            wsStudents.Cell("B1").Value = "Age";
+            wsStudents.Cell("B1").Value = "Degree";
             wsStudents.Cell("C1").Value = "Parent";
             wsStudents.Cell("D1").Value = "School";
             wsStudents.Cell("E1").Value = "Class";
 
-            // Data Validation on columns
+            // Dropdowns
             wsStudents.Column("C").SetDataValidation().List("ParentList");
             wsStudents.Column("D").SetDataValidation().List("SchoolList");
             wsStudents.Column("E").SetDataValidation().List("ClassList");
@@ -132,6 +178,7 @@ namespace PrimaryConnect.Data
             stream.Position = 0;
             return stream;
         }
+
 
     }
 }
