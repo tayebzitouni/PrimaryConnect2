@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Google;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrimaryConnect.Data;
 using PrimaryConnect.Dto;
@@ -12,84 +13,129 @@ namespace PrimaryConnect.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        public EventsController(AppDbContext appDbContext)
-        {
-            _PrimaryConnect_Db = appDbContext;
-        }
-        private AppDbContext _PrimaryConnect_Db;
+        private readonly AppDbContext _context;
 
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> GetById(int id)
+        public EventsController(AppDbContext context)
         {
-            return Ok(await _PrimaryConnect_Db.events.SingleOrDefaultAsync(m => m.Id == id));
-        }
-        [HttpGet("[action]")]
-        public async Task<IActionResult> GetAll( )
-        {
-            return Ok(await _PrimaryConnect_Db.events.ToListAsync());
+            _context = context;
         }
 
-
-
-        [HttpPost("{Event}")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> AddEvent(Event_Dto Event)
+        // GET: api/Events
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Event_Dto>>> GetEvents()
         {
-            Event _Event = Event.ToEvent();
-            _PrimaryConnect_Db.
-                events.Add(_Event);
-            try
+            var events = await _context.events.ToListAsync();
+
+            var eventDtos = events.Select(e => new Event_Dto
             {
-                await _PrimaryConnect_Db.SaveChangesAsync();
-            }
-            catch
-            { return BadRequest(); }
+                title = e.title,
+                Description = e.Description,
+                date = e.date,
+                StartTime = e.StartTime,
+                EndTime = e.EndTime,
+                All = e.All,
+                level = e.level,
+                Color = e.Color
+            }).ToList();
 
-            return Ok(Event);
+            return Ok(eventDtos);
         }
 
 
-        // DELETE: api/admins/{id}
-        [HttpDelete("{id}", Name = "DeleteEvent")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteMark(int id)
+        // GET: api/Events/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Event>> GetEvent(int id)
         {
-            Event? _Event = await _PrimaryConnect_Db.events.FindAsync(id);
-            if (_Event == null)
+            var _event = await _context.events.FindAsync(id);
+
+            if (_event == null)
             {
-                return NotFound("Admin not found.");
+                return NotFound();
             }
 
-            _PrimaryConnect_Db.events.Remove(_Event);
-            await _PrimaryConnect_Db.SaveChangesAsync();
-
-            return NoContent(); // 204 No Content
+            return _event;
         }
 
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPut("{id}", Name = "UpdateEvent")]
-        public async Task<IActionResult> UpdateMark(int id, Event_Dto Updated_Event)
+        // POST: api/Events
+        [HttpPost]
+        public async Task<ActionResult<Event>> PostEvent([FromBody] Event_Dto dto)
         {
-            if (id != Updated_Event.Id)
+            var _event = dto.ToEvent();
+            _context.events.Add(_event);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetEvent), new { id = _event.Id }, _event);
+        }
+
+        // PUT: api/Events/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutEvent(int id, [FromBody] Event_Dto dto)
+        {
+            var existingEvent = await _context.events.FindAsync(id);
+            if (existingEvent == null)
             {
-                return BadRequest("ID mismatch.");
+                return NotFound();
             }
 
-            Event? existing_Absence = await _PrimaryConnect_Db.events.FindAsync(id);
-            if (existing_Absence == null)
+            // Update properties
+            existingEvent.title = dto.title;
+            existingEvent.Description = dto.Description;
+            existingEvent.date = dto.date;
+            existingEvent.StartTime = dto.StartTime;
+            existingEvent.EndTime = dto.EndTime;
+            existingEvent.All = dto.All;
+            existingEvent.level = dto.level;
+
+            _context.Entry(existingEvent).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // DELETE: api/Events/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEvent(int id)
+        {
+            var _event = await _context.events.FindAsync(id);
+            if (_event == null)
             {
-                return NotFound("Admin not found.");
+                return NotFound();
             }
-            existing_Absence = Updated_Event.ToEvent();
 
-            await _PrimaryConnect_Db.SaveChangesAsync();
+            _context.events.Remove(_event);
+            await _context.SaveChangesAsync();
 
-            return NoContent(); // 204 No Content
+            return NoContent();
+        }
+
+
+        [HttpGet("GetEventsForStudent/{studentId}")]
+        public async Task<IActionResult> GetEventsForStudent(int studentId)
+        {
+            var student = await _context.Students.FindAsync(studentId);
+            if (student == null)
+            {
+                return NotFound("Student not found.");
+            }
+
+            var events = await _context.events
+                .Where(e => e.All || e.level == student.Degree)
+                .ToListAsync();
+
+            // Map to DTOs if needed
+            var eventDtos = events.Select(e => new Event_Dto
+            {
+                title = e.title,
+                Description = e.Description,
+                date = e.date,
+                StartTime = e.StartTime,
+                EndTime = e.EndTime,
+                All = e.All,
+                level = e.level,
+                Color = e.Color
+            }).ToList();
+
+            return Ok(eventDtos);
         }
 
 

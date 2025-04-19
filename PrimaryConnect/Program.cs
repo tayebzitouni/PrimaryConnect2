@@ -106,6 +106,7 @@ builder.Services.AddSingleton<IFileUploadPathProvider>(provider =>
 //builder.Services.AddSingleton<IFileUploadPathProvider>(new FileUploadPathProvider(builder.Environment.WebRootPath));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+builder.Services.AddScoped<IEmailService, EmailServices>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -128,7 +129,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 
-
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

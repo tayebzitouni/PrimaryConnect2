@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PrimaryConnect.Data;
 
@@ -10,9 +11,11 @@ using PrimaryConnect.Data;
 namespace PrimaryConnect.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250419161835_nine.10")]
+    partial class nine10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
@@ -154,46 +157,6 @@ namespace PrimaryConnect.Migrations
                     b.ToTable("documents");
                 });
 
-            modelBuilder.Entity("PrimaryConnect.Models.Event", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("All")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("EndTime")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("StartTime")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly>("date")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("level")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("title")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("events");
-                });
-
             modelBuilder.Entity("PrimaryConnect.Models.Event_Student", b =>
                 {
                     b.Property<int>("Id")
@@ -213,6 +176,42 @@ namespace PrimaryConnect.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("events_Students");
+                });
+
+            modelBuilder.Entity("PrimaryConnect.Models.Events", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("All")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EndTime")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StartTime")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("level")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("events");
                 });
 
             modelBuilder.Entity("PrimaryConnect.Models.Homework", b =>
@@ -654,7 +653,7 @@ namespace PrimaryConnect.Migrations
 
             modelBuilder.Entity("PrimaryConnect.Models.Event_Student", b =>
                 {
-                    b.HasOne("PrimaryConnect.Models.Event", "Event")
+                    b.HasOne("PrimaryConnect.Models.Events", "Event")
                         .WithMany("envent_student")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -834,7 +833,7 @@ namespace PrimaryConnect.Migrations
                     b.Navigation("teachers");
                 });
 
-            modelBuilder.Entity("PrimaryConnect.Models.Event", b =>
+            modelBuilder.Entity("PrimaryConnect.Models.Events", b =>
                 {
                     b.Navigation("envent_student");
                 });
