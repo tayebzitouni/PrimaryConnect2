@@ -51,9 +51,10 @@ namespace PrimaryConnect.Controllers
             // Save metadata to DB
             var document = dto.ToDocument();
             document.FileName = fileName;
+
             document.Type = Path.GetExtension(fileName);
             document.Date = DateTime.Now.ToString("yyyy-MM-dd");
-            
+            document.UploaderRole = HttpContext.Session.GetString("Role");
             document.personid = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
             _context.documents.Add(document);
             await _context.SaveChangesAsync();
@@ -61,12 +62,72 @@ namespace PrimaryConnect.Controllers
             return Ok(new { message = "Document uploaded successfully.", documentId = document.Id });
         }
 
+        //// GET: api/Document/all
+        //[HttpGet("all")]
+        //public async Task<ActionResult<IEnumerable<Document>>> GetAllDocuments()
+        //{
+        //    var documents = await _context.documents.ToListAsync();
+
+        //    var result = documents.Select(doc => new 
+        //    {
+        //        Id = doc.Id,
+        //        title = doc.title,
+        //        Description = doc.Dsecription,
+
+        //        DownloadUrl = $"{Request.Scheme}://{Request.Host}/api/SubmittedDocument/download/{doc.Id}"
+        //    }).ToList();
+
+        //    return Ok(result);
+        //}
         // GET: api/Document/all
         [HttpGet("all")]
-        public async Task<ActionResult<IEnumerable<DocumentDto>>> GetAllDocuments()
+        public async Task<ActionResult<IEnumerable<object>>> GetAllDocuments()
         {
             var documents = await _context.documents.ToListAsync();
-            return Ok(documents);
+
+            var result = documents.Select(doc => new
+            {
+                // Copy all properties from Document
+                doc.Id,
+                doc.title,
+                doc.Dsecription,
+                doc.Date,       // if you have this or others, add here
+                doc.Type,
+                doc.personid,
+                doc.IsApproved,// example additional fields
+
+                // Add the DownloadUrl
+                DownloadUrl = $"{Request.Scheme}://{Request.Host}/api/SubmittedDocument/download/{doc.Id}"
+            }).ToList();
+
+            return Ok(result);
+        }
+
+
+
+        [HttpGet("view/{id}")]
+        public async Task<IActionResult> ViewDocument(int id)
+        {
+            var doc = await _context.documents.FindAsync(id);
+            if (doc == null)
+                return NotFound("Document not found in database.");
+
+            // Determine folder based on role
+            string folder = doc.UploaderRole switch
+            {
+                "Teacher" => "SubmitedDocuments/Teacher",
+                "Parent" => "SubmitedDocuments/Parent",
+                _ => "SubmitedDocuments/Unknown"
+            };
+
+            var filePath = Path.Combine(_env.WebRootPath, folder, doc.FileName);
+            if (!System.IO.File.Exists(filePath))
+                return NotFound("File not found on server.");
+
+            // Detect content type for browser preview
+            var mimeType = UsefulFunctions.GetMimeType(doc.FileName.ToString());
+
+            return PhysicalFile(filePath, mimeType); // ← No download name = browser view
         }
 
         // GET: api/Document/download/5
@@ -77,7 +138,14 @@ namespace PrimaryConnect.Controllers
             if (doc == null)
                 return NotFound();
 
-            var path = Path.Combine(_env.WebRootPath, "uploads", doc.FileName);
+            string folder = "SubmitedDocuments/Parent";
+            if (HttpContext.Session.GetString("Role") == "Teacher")
+            {
+                folder = "SubmitedDocuments/Teacher";
+            }
+
+            var path = Path.Combine(_env.WebRootPath, folder, doc.FileName);
+
             if (!System.IO.File.Exists(path))
                 return NotFound("File not found on server.");
 
@@ -103,6 +171,62 @@ namespace PrimaryConnect.Controllers
                 documentId = document.Id,
                 status = document.IsApproved
             });
+        }
+
+        //[HttpGet("teacher")]
+        //public async Task<ActionResult<IEnumerable<DocumentDto>>> GetTeacherDocuments()
+        //{
+        //    var teacherDocs = await _context.documents
+        //        .Where(d => d.UploaderRole == "Teacher")
+        //        .ToListAsync();
+
+        //    return Ok(teacherDocs);
+        //}
+
+        // GET: api/Document/parent
+        //[HttpGet("parent")]
+        //public async Task<ActionResult<IEnumerable<DocumentDto>>> GetParentDocuments()
+        //{
+        //    var parentDocs = await _context.documents
+        //        .Where(d => d.UploaderRole == "Parent")
+        //        .ToListAsync();
+
+        //    return Ok(parentDocs);
+        //}
+
+        [HttpGet("teacher")]
+        public async Task<ActionResult<IEnumerable<DocumentDto>>> GetTeacherDocumentsWithUrl()
+        {
+            var documents = await _context.documents
+                .Where(d => d.UploaderRole == "Teacher")
+                .ToListAsync();
+
+            var result = documents.Select(doc => new DocumentDto
+            {
+                Id = doc.Id,
+                Description = doc.Dsecription,
+                title = doc.title,
+                DownloadUrl = $"{Request.Scheme}://{Request.Host}/api/SubmittedDocument/download/{doc.Id}"
+            }).ToList();
+
+            return Ok(result);
+        }
+        [HttpGet("parent")]
+        public async Task<ActionResult<IEnumerable<DocumentDto>>> GetParentDocuments()
+        {
+            var documents = await _context.documents
+                .Where(d => d.UploaderRole == "Parent")
+                .ToListAsync();
+
+            var result = documents.Select(doc => new DocumentDto
+            {
+                Id = doc.Id,
+                title= doc.title,
+                Description = doc.Dsecription,
+                DownloadUrl = $"{Request.Scheme}://{Request.Host}/api/SubmittedDocument/download/{doc.Id}"
+            }).ToList();
+
+            return Ok(result);
         }
 
 

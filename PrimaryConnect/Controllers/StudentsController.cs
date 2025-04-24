@@ -90,10 +90,7 @@ namespace PrimaryConnect.Controllers
         [HttpPut("{id}", Name = "UpdateStudent")]
         public async Task<IActionResult> UpdateStudent(int id, Student_Dto updatedStudent)
         {
-            if (id != updatedStudent.Id)
-            {
-                return BadRequest("ID mismatch.");
-            }
+          
 
             Student? existingStudent = await _PrimaryConnect_Db.Students.FindAsync(id);
             if (existingStudent == null)

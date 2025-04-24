@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -32,39 +33,92 @@ namespace PrimaryConnect.Controllers
         //    await _hubContext.Clients.All.SendAsync("NewMessage", message.Id, message.Text);
         //    return Ok(new { Status = "Message Sent" });
         //}
-        [Authorize]
+
+        //[HttpPost("send")]
+        //public async Task<IActionResult> SendMessage([FromBody] ChatMessageDto message)
+        //{
+        //    //var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    //if (userIdClaim == null)
+        //    //    return Unauthorized("يجب تسجيل الدخول أولًا.");
+        //    try
+        //    {
+        //        //int userId = /*int.Parse(userIdClaim)*/  int.Parse(HttpContext.Session.GetString("UserId"));
+        //        int userId = 3; 
+        //        if (string.IsNullOrWhiteSpace(message.Text))
+        //            return BadRequest("لا يمكن أن يكون محتوى الرسالة فارغًا.");
+
+        //        // حفظ الرسالة في قاعدة البيانات
+        //        var chatMessage = new ChatMessage
+        //        {
+        //            Text = message.Text,
+        //            UserId = userId
+        //        };
+
+        //        _context.chatMessages.Add(chatMessage);
+        //        await _context.SaveChangesAsync();
+
+        //        // إرسال الرسالة لجميع المستخدمين عبر SignalR
+        //        await _hubContext.Clients.All.SendAsync("NewMessage", new
+        //        {
+        //            Id = chatMessage.Id,
+        //            Text = chatMessage.Text,
+        //            UserId = chatMessage.UserId
+        //        });
+
+        //        return Ok(new { Status = "تم إرسال الرسالة وتخزينها." });
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        Console.WriteLine(ex.Message);
+        //        Console.WriteLine("fuck");
+        //        return StatusCode(500, new { error = ex.Message });
+        //    }
+        //    }
+
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromBody] ChatMessageDto message)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdClaim == null)
-                return Unauthorized("يجب تسجيل الدخول أولًا.");
-
-            int userId = int.Parse(userIdClaim);
-
-            if (string.IsNullOrWhiteSpace(message.Text))
-                return BadRequest("لا يمكن أن يكون محتوى الرسالة فارغًا.");
-
-            // حفظ الرسالة في قاعدة البيانات
-            var chatMessage = new ChatMessage
+            try
             {
-                Text = message.Text,
-                UserId = userId
-            };
+                if (string.IsNullOrWhiteSpace(message.Text))
+                    return BadRequest("Message cannot be empty");
 
-            _context.chatMessages.Add(chatMessage);
-            await _context.SaveChangesAsync();
+                var chatMessage = new ChatMessage
+                {
+                    Text = message.Text,
+                    UserName = message.UserName,  // This is now required
+                                                  // UserId = userId // Only if you have authentication
+                };
 
-            // إرسال الرسالة لجميع المستخدمين عبر SignalR
-            await _hubContext.Clients.All.SendAsync("NewMessage", new
+                _context.chatMessages.Add(chatMessage);
+                await _context.SaveChangesAsync();
+
+                await _hubContext.Clients.All.SendAsync("NewMessage", new
+                {
+                    Id = chatMessage.Id,
+                    Text = chatMessage.Text,
+                    UserName = chatMessage.UserName,
+                    Timestamp = chatMessage.Timestamp.ToString("HH:mm")
+                });
+
+                return Ok(new
+                {
+                    Status = "Success",
+                    MessageId = chatMessage.Id
+                });
+            }
+            catch (Exception ex)
             {
-                Id = chatMessage.Id,
-                Text = chatMessage.Text,
-                UserId = chatMessage.UserId
-            });
-
-            return Ok(new { Status = "تم إرسال الرسالة وتخزينها." });
+                // Add proper logging here
+                Console.WriteLine($"Error: {ex.Message}\n{ex.StackTrace}");
+                return StatusCode(500, new
+                {
+                    error = "Internal server error",
+                    details = ex.Message  // Only in development!
+                });
+            }
         }
+
 
 
         //[Authorize]
@@ -108,7 +162,7 @@ namespace PrimaryConnect.Controllers
                 {
                     Id = m.Id,
                     Text = m.Text,
-                    UserId = m.UserId
+                   // UserId = m.UserId
                 })
                 .ToListAsync();
 

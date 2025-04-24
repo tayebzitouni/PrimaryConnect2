@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PrimaryConnect.Data;
 
@@ -10,9 +11,11 @@ using PrimaryConnect.Data;
 namespace PrimaryConnect.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250420172208_ten.1")]
+    partial class ten1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
@@ -49,26 +52,19 @@ namespace PrimaryConnect.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PersonId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("UserName")
-                        .IsRequired()
+                    b.Property<DateTime>("datetime")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PersonId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("chatMessages");
                 });
@@ -615,9 +611,13 @@ namespace PrimaryConnect.Migrations
 
             modelBuilder.Entity("PrimaryConnect.Models.ChatMessage", b =>
                 {
-                    b.HasOne("PrimaryConnect.Models.Person", null)
+                    b.HasOne("PrimaryConnect.Models.Person", "person")
                         .WithMany("chatMessages")
-                        .HasForeignKey("PersonId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("person");
                 });
 
             modelBuilder.Entity("PrimaryConnect.Models.Class", b =>

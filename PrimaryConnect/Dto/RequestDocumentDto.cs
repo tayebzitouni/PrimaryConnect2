@@ -8,7 +8,7 @@ namespace PrimaryConnect.Dto
     {
        
         public string title { get; set; }
-       
+        
         public string Description { get; set; }
        
         public UsefulFunctions.DeliveryMethode DeliveryMethode { get; set; }

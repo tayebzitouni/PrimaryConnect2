@@ -35,12 +35,26 @@ namespace PrimaryConnect.Controllers
         }
 
         // GET: api/class/5
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetClass(int id)
         {
             var classData = await _context.Classes
               
                 .FirstOrDefaultAsync(c => c.id == id);
+
+            if (classData == null)
+                return NotFound();
+
+            return Ok(classData);
+        }
+
+
+        [HttpGet("a/{name}", Name = "GetClassByname")]
+        public async Task<IActionResult> GetClassByname(string name)
+        {
+            var classData = await _context.Classes
+
+                .FirstOrDefaultAsync(c => c.name == name);
 
             if (classData == null)
                 return NotFound();
@@ -60,21 +74,32 @@ namespace PrimaryConnect.Controllers
 
         // PUT: api/class/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateClass(int id, [FromBody] ClassDto dto)
+        public async Task<IActionResult> UpdateClass(int id, ClassDto updatedAdmin)
         {
-            if (id != dto.id)
-                return BadRequest("Class ID mismatch.");
+            if (id != updatedAdmin.id)
+            {
+                return BadRequest("ID mismatch.");
+            }
 
-            var classToUpdate = await _context.Classes.FindAsync(id);
-            if (classToUpdate == null)
-                return NotFound();
+            Class? existingAdmin = await _context.Classes.FindAsync(id);
+            if (existingAdmin == null)
+            {
+                return NotFound("Admin not found.");
+            }
 
-            classToUpdate.name = dto.Name ?? classToUpdate.name;
-            classToUpdate.SchoolId = dto.schoolid != 0 ? dto.schoolid : classToUpdate.SchoolId;
+            // Map fields manually or use a mapper
+            existingAdmin.name = updatedAdmin.Name;
+            existingAdmin.SchoolId = updatedAdmin.schoolid;
+            existingAdmin.level = updatedAdmin.level;
+          
+
+            // Add other fields as necessary...
 
             await _context.SaveChangesAsync();
-            return Ok("Class updated successfully.");
+
+            return NoContent();
         }
+
 
         // DELETE: api/class/5
         [HttpDelete("{id}")]
@@ -114,6 +139,20 @@ namespace PrimaryConnect.Controllers
 
             if (classes == null || !classes.Any())
                 return NotFound("No classes found for the specified teacher.");
+
+            return Ok(classes);
+        }
+
+
+        [HttpGet("level")]
+        public async Task<IActionResult> GetClassesByLevel(int level)
+        {
+            var classes = await _context.Classes
+                .Where(c => c.level==level)
+                .ToListAsync();
+
+            if (classes == null || !classes.Any())
+                return NotFound("No classes found for the specified level.");
 
             return Ok(classes);
         }

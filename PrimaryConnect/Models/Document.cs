@@ -9,9 +9,10 @@ namespace PrimaryConnect.Models
       public string title { get; set; }
       public string Date { get; set; }
       public string Dsecription { get; set; }
-       public bool ?IsApproved { get; set; }
-        [NotMapped]
-       public IFormFile File { get; set; }
+      public bool ?IsApproved { get; set; }
+            [NotMapped]
+      public IFormFile File { get; set; }
+      public string UploaderRole { get; set; }
       public string FileName { get; set; }
       public string Type { get; set; }
       public int personid { get; set; }

@@ -18,7 +18,7 @@ namespace PrimaryConnect.Models
         
         
  
-        public String Remarque { get; set; }
+        public String ?Remarque { get; set; }
         public int Semestre { get; set; }
         public int Year { get; set; }
 

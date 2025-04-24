@@ -51,7 +51,7 @@ namespace PrimaryConnect.Data
             modelBuilder.Entity<Student>().HasMany<Marks>(p => p.marks).WithOne(s => s.student).HasForeignKey(s => s.StudentId);
             modelBuilder.Entity<Student>().HasMany<Absence>(p => p.absences).WithOne(s => s.student).HasForeignKey(s => s.StudentId);
             modelBuilder.Entity<Student>().HasMany<Event_Student>(p => p.envent_student).WithOne(s => s.student).HasForeignKey(s => s.StudentId).OnDelete(DeleteBehavior.Restrict);
-         modelBuilder.Entity<Person>().HasMany<ChatMessage>(p => p.chatMessages).WithOne(s => s.person).HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
+   //      modelBuilder.Entity<Person>().HasMany<ChatMessage>(p => p.chatMessages).WithOne(s => s.person).HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
             //modelBuilder.Entity<School>().HasMany<Administrator>(p => p.administrators).WithOne(s => s.School).HasForeignKey(s => s.SchoolId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<School>().HasMany<Student>(p => p.students).WithOne(s => s.school).HasForeignKey(s => s.SchoolId).OnDelete(DeleteBehavior.Cascade);
 
