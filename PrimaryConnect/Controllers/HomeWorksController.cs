@@ -1,152 +1,36 @@
-﻿//using Google;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-//using PrimaryConnect.Data;
-//using PrimaryConnect.Models;
-
-//namespace PrimaryConnect.Controllers
-//{
-//    [ApiController]
-//    [Route("api/[controller]")]
-//    public class HomeworksController : ControllerBase
-//    {
-//        private readonly AppDbContext _context;
-//        private readonly IWebHostEnvironment _env; // Ensure this is declared
-
-//        // Constructor injecting both AppDbContext and IWebHostEnvironment
-//        public HomeworksController(AppDbContext context, IWebHostEnvironment env)
-//        {
-//            _context = context;
-//            _env = env;  // Inject IWebHostEnvironment
-//        }
-
-//        //    [HttpPost("upload")]
-//        //    public async Task<IActionResult> UploadHomework(IFormFile file, [FromServices] IFileUploadPathProvider uploadPathProvider)
-//        //    {
-//        //        // Check if a file is provided
-//        //        if (file == null || file.Length == 0)
-//        //        {
-//        //            return BadRequest("A file must be uploaded.");
-//        //        }
-
-//        //        try
-//        //        {
-//        //            // Get the upload folder path from the provider
-//        //            var uploadDir = uploadPathProvider.GetUploadPath();
-
-//        //            // Create the directory if it doesn't exist
-//        //            if (!Directory.Exists(uploadDir))
-//        //            {
-//        //                Directory.CreateDirectory(uploadDir);
-//        //            }
-
-//        //            // Define the file path
-//        //            var filePath = Path.Combine(uploadDir, file.FileName);
-
-//        //            // Save the file to the specified path
-//        //            using (var stream = new FileStream(filePath, FileMode.Create))
-//        //            {
-//        //                await file.CopyToAsync(stream);
-//        //            }
-
-//        //            // Return the file path as response
-//        //            return Ok(new { filePath });
-//        //        }
-//        //        catch (Exception ex)
-//        //        {
-//        //            return StatusCode(500, "Internal server error: " + ex.Message);
-//        //        }
-//        //    }
-
-//        //}
-//        [HttpPost("assign-homework")]
-//        public async Task<IActionResult> AssignHomework([FromBody] Homework homework)
-//        {
-//            if (homework == null)
-//            {
-//                return BadRequest("Homework data is required.");
-//            }
-
-//            try
-//            {
-//                // Check if homework is assigned to a specific user or to all parents in a class
-//                if (homework.AssignedToAll && homework.ClassId != null)
-//                {
-//                    // Assign homework to all parents of a class
-//                    var usersInClass = await _context.Parents
-//                        .Where(u => u.ClassId == homework.ClassId)
-//                        .ToListAsync();
-
-//                    foreach (var user in usersInClass)
-//                    {
-//                        var assignedHomework = new Homework
-//                        {
-//                            FilePath = homework.FilePath,
-//                            Title = homework.Title,
-//                            Description = homework.Description,
-//                            UserId = user.Id,
-//                            ClassId = homework.ClassId,
-//                            AssignedToAll = true,
-//                            DateAssigned = DateTime.Now
-//                        };
-
-//                        _context.homeworks.Add(assignedHomework);
-//                    }
-//                }
-//                else if (homework.UserId != null)
-//                {
-//                    // Assign homework to a specific user
-//                    _context.homeworks.Add(homework);
-//                }
-//                else
-//                {
-//                    return BadRequest("UserId or ClassId must be specified.");
-//                }
-
-//                // Save to database
-//                await _context.SaveChangesAsync();
-
-//                // Return response
-//                return Ok(new { message = "Homework assigned successfully" });
-//            }
-//            catch (Exception ex)
-//            {
-//                return StatusCode(500, "Internal server error: " + ex.Message);
-//            }
-//        }
-//    }
-//}
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PrimaryConnect.Data;
 using Microsoft.EntityFrameworkCore;
+using PrimaryConnect.Data;
+using PrimaryConnect.Models;
+using PrimaryConnect.Dto;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using PrimaryConnect.Models;
-using Microsoft.AspNetCore.Hosting;
-using PrimaryConnect.Dto;
-using Humanizer;
 
 [Route("api/[controller]")]
 [ApiController]
 public class HomeworkController : ControllerBase
 {
     private readonly AppDbContext _context;
-    private readonly IWebHostEnvironment _env; // Store the injected web host env
+    private readonly IWebHostEnvironment _env;
 
     public HomeworkController(AppDbContext context, IWebHostEnvironment env)
     {
         _context = context;
-        _env = env; // Initialize the environment
+        _env = env;
     }
 
     [HttpPost("assign-homework")]
     public async Task<IActionResult> AssignHomework([FromForm] HomeworkUploadRequest dto)
     {
-        if (dto.File == null || (dto.UserId == null && dto.ClassId == null))
-            return BadRequest("File and either UserId or ClassId must be provided.");
+        if (dto.File == null || dto.ClassId == null || !dto.ClassId.Any())
+            return BadRequest("File and at least one ClassId are required.");
+
+        // Correct way to get UserId
+        var teacherId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+        if (teacherId == null)
+            return Unauthorized("Teacher session not found.");
 
         var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
         if (!Directory.Exists(uploadsFolder))
@@ -159,84 +43,64 @@ public class HomeworkController : ControllerBase
         }
 
         string contentType = dto.File.ContentType;
-        string fileCategory = "";
-        if (contentType.StartsWith("image/"))
-            fileCategory = "Image";
-        else if (contentType.StartsWith("video/"))
-            fileCategory = "Video";
-        else if (contentType.StartsWith("audio/"))
-            fileCategory = "Audio";
-        else if (contentType == "application/pdf")
-            fileCategory = "PDF";
-        else
-            fileCategory = "Other";
-
-        var baseHomework = new Homework
+        string fileCategory = contentType switch
         {
+            var c when c.StartsWith("image/") => "Image",
+            var c when c.StartsWith("video/") => "Video",
+            var c when c.StartsWith("audio/") => "Audio",
+            "application/pdf" => "PDF",
+            _ => "Other"
+        };
 
+        var homework = new Homework
+        {
             FilePath = filePath,
             Type = fileCategory,
             Subject = dto.Subject,
-            
+            teacherId = teacherId,  // <<< here .Value
+            ClassId = dto.ClassId,
+            AssignedToAll = dto.AssignedToAll,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate
         };
 
-        if (dto.AssignedToAll && dto.ClassId != null)
-        {
-            var users = await _context.Students
-                .Where(u => u.ClassId == dto.ClassId)
-                .ToListAsync();
-
-            foreach (var user in users)
-            {
-                _context.homeworks.Add(new Homework
-                {
-                    FilePath = baseHomework.FilePath,
-                    Type = baseHomework.Type,
-                    Subject = baseHomework.Subject,
-                    UserId = user.Id,
-                    ClassId = dto.ClassId,
-                    AssignedToAll = true,
-                    StartDate = baseHomework.StartDate,
-                    EndDate = baseHomework.EndDate
-                });
-            }
-        }
-        else if (dto.UserId != null)
-        {
-            baseHomework.UserId = dto.UserId;
-            baseHomework.ClassId = dto.ClassId;
-            baseHomework.AssignedToAll = false;
-
-            _context.homeworks.Add(baseHomework);
-        }
-
+        _context.homeworks.Add(homework);
         await _context.SaveChangesAsync();
         return Ok("Homework assigned successfully.");
     }
-    
-    
-    [HttpGet("student/{id}")]
-    public async Task<IActionResult> GetHomeworksByStudent(int id)
-    {
-        var data = await _context.homeworks
-            .Where(h => h.UserId == id)
-            .Select(h => new {
-                h.Id,
-                h.FilePath,
-                h.Subject,
-                StartDate = h.StartDate.ToString("yyyy-MM-dd"),
-                EndDate = h.EndDate.ToString("yyyy-MM-dd")
-
-            })
-            .ToListAsync();
-
-        return Ok(data);
-    }
 
 
-    // GET: api/homework/parent/5
+    //[HttpGet("student/{id}")]
+    //public async Task<IActionResult> GetHomeworksByStudent(int id)
+    //{
+    //    var student = await _context.Students.FindAsync(id);
+    //    if (student == null)
+    //        return NotFound("Student not found.");
+
+    //    var allHomeworks = await _context.homeworks
+    //        .Where(h => h.AssignedToAll)
+    //        .ToListAsync();
+
+    //    var matchedHomeworks = allHomeworks
+    //        .Where(h => h.ClassId != null && h.ClassId.Contains(student.ClassId))
+    //        .Select(h => new
+    //        {
+    //            h.Id,
+    //            h.Subject,
+    //            h.Type,
+    //            h.teacherId,
+    //            h.AssignedToAll,
+    //            FileName = Path.GetFileName(h.FilePath),
+    //            DownloadUrl = $"{Request.Scheme}://{Request.Host}/api/homework/download/{Path.GetFileName(h.FilePath)}",
+    //            ViewUrl = $"{Request.Scheme}://{Request.Host}/uploads/{Path.GetFileName(h.FilePath)}",
+    //            StartDate = h.StartDate.ToString("yyyy-MM-dd"),
+    //            EndDate = h.EndDate.ToString("yyyy-MM-dd")
+    //        })
+    //        .ToList();
+
+    //    return Ok(matchedHomeworks);
+    //}
+
     [HttpGet("parent/{id}")]
     public async Task<IActionResult> GetHomeworksByParent(int id)
     {
@@ -245,43 +109,86 @@ public class HomeworkController : ControllerBase
             return NotFound("Parent not found");
 
         var data = await _context.homeworks
-            .Where(h => h.UserId == parent.Id)
+            .Where(h => h.teacherId == parent.Id) // You might want to adjust logic here
             .ToListAsync();
+
         return Ok(data);
     }
 
-    // GET: api/homework/download/filename.pdf
-    [HttpGet("download/{fileName}")]
-    public IActionResult Download(string fileName)
+    [HttpGet("download/{id}")]
+    public async Task<IActionResult> Download(int id)
     {
-        var path = Path.Combine(_env.WebRootPath, "uploads", fileName);
-        if (!System.IO.File.Exists(path))
-            return NotFound();
+        var homework = await _context.homeworks.FindAsync(id);
+        if (homework == null)
+            return NotFound("Homework not found.");
 
+        var path = homework.FilePath;
+        if (!System.IO.File.Exists(path))
+            return NotFound("File not found on server.");
+
+        var fileName = Path.GetFileName(path);
         var contentType = "application/octet-stream";
         return PhysicalFile(path, contentType, fileName);
     }
 
-    // GET: /uploads/filename.pdf
-    [HttpGet("/uploads/{fileName}")]
-    public IActionResult ViewFile(string fileName)
+    [HttpGet("view/{id}")]
+    public async Task<IActionResult> ViewFile(int id)
     {
-        var path = Path.Combine(_env.WebRootPath, "uploads", fileName);
-        if (!System.IO.File.Exists(path))
-            return NotFound();
+        var homework = await _context.homeworks.FindAsync(id);
+        if (homework == null)
+            return NotFound("Homework not found.");
 
-        var contentType = "application/octet-stream";
-        return PhysicalFile(path, contentType);
+        var path = homework.FilePath;
+        if (!System.IO.File.Exists(path))
+            return NotFound("File not found on server.");
+
+        var contentType = GetContentType(path);
+
+        var fileBytes = await System.IO.File.ReadAllBytesAsync(path);
+        Response.Headers.Add("Content-Disposition", $"inline; filename={Path.GetFileName(path)}");
+
+        return File(fileBytes, contentType);
     }
 
-    // DELETE: api/homework/5
+    //[HttpGet("view/{id}")]
+    //public async Task<IActionResult> ViewFile(int id)
+    //{
+    //    var homework = await _context.homeworks.FindAsync(id);
+    //    if (homework == null)
+    //        return NotFound("Homework not found.");
+
+    //    var path = homework.FilePath;
+    //    if (!System.IO.File.Exists(path))
+    //        return NotFound("File not found on server.");
+
+    //    var contentType = GetContentType(path);
+    //    return PhysicalFile(path, contentType);
+    //}
+
+    // Helper method to get the right content type
+    private string GetContentType(string path)
+    {
+        var ext = Path.GetExtension(path).ToLowerInvariant();
+        return ext switch
+        {
+            ".jpg" => "image/jpeg",
+            ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".pdf" => "application/pdf",
+            ".mp4" => "video/mp4",
+            ".mp3" => "audio/mpeg",
+            _ => "application/octet-stream",
+        };
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteHomework(int id)
     {
         var hw = await _context.homeworks.FindAsync(id);
         if (hw == null) return NotFound();
 
-        var filePath = Path.Combine(_env.WebRootPath, "uploads", hw.FilePath);
+        var filePath = Path.Combine(_env.WebRootPath, "uploads", Path.GetFileName(hw.FilePath));
         if (System.IO.File.Exists(filePath))
             System.IO.File.Delete(filePath);
 
@@ -290,7 +197,6 @@ public class HomeworkController : ControllerBase
         return Ok("Deleted successfully");
     }
 
-    // POST: api/homework/delete-multiple
     [HttpPost("delete-multiple")]
     public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
     {
@@ -298,7 +204,7 @@ public class HomeworkController : ControllerBase
 
         foreach (var hw in hws)
         {
-            var path = Path.Combine(_env.WebRootPath, "uploads", hw.FilePath);
+            var path = Path.Combine(_env.WebRootPath, "uploads", Path.GetFileName(hw.FilePath));
             if (System.IO.File.Exists(path))
                 System.IO.File.Delete(path);
 
@@ -309,16 +215,123 @@ public class HomeworkController : ControllerBase
         return Ok("Multiple homeworks deleted");
     }
 
-   
-
     [HttpGet]
     public async Task<IActionResult> GetAllHomeworks()
     {
         var homeworks = await _context.homeworks.ToListAsync();
         return Ok(homeworks);
     }
+
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> UpdateHomework(int id, [FromForm] HomeworkUploadRequest dto)
+    {
+        var homework = await _context.homeworks.FindAsync(id);
+        if (homework == null)
+            return NotFound("Homework not found.");
+
+        // Update fields (subject, start date, end date, etc.)
+        homework.Subject = dto.Subject;
+        homework.StartDate = dto.StartDate;
+        homework.EndDate = dto.EndDate;
+        homework.AssignedToAll = dto.AssignedToAll;
+        homework.ClassId = dto.ClassId; // Optional update for ClassId
+
+        // If a new file is uploaded
+        if (dto.File != null)
+        {
+            // Delete the old file (if it exists)
+            if (System.IO.File.Exists(homework.FilePath))
+                System.IO.File.Delete(homework.FilePath);
+
+            // Save the new file
+            var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
+            Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
+
+            var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(dto.File.FileName);
+            var filePath = Path.Combine(uploadsFolder, newFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await dto.File.CopyToAsync(stream);
+            }
+
+            homework.FilePath = filePath;
+
+            // Determine new file type (based on content type)
+            string contentType = dto.File.ContentType;
+            homework.Type = contentType switch
+            {
+                var c when c.StartsWith("image/") => "Image",
+                var c when c.StartsWith("video/") => "Video",
+                var c when c.StartsWith("audio/") => "Audio",
+                "application/pdf" => "PDF",
+                _ => "Other"
+            };
+        }
+
+        // Save changes to the database
+        await _context.SaveChangesAsync();
+
+        return Ok("Homework updated successfully.");
+    
+    }
+
+
+    [HttpGet("homeworks-by-student/{studentId}")]
+    public async Task<IActionResult> GetHomeworksByStudent(int studentId)
+    {
+        // Get the student's class ID from the database (assuming you have a Student model and table)
+        var student = await _context.Students.FindAsync(studentId);
+        if (student == null)
+            return NotFound("Student not found.");
+
+        // Get all homeworks assigned to the class or to all students
+        var homeworks = await _context.homeworks
+            .Where(h => h.AssignedToAll || (h.ClassId != null && h.ClassId.Contains(student.ClassId)))
+            .Select(h => new
+            {
+                h.Id,
+                h.Subject,
+                h.Type,
+                h.StartDate,
+                h.EndDate,
+                h.AssignedToAll,
+                h.FilePath,
+                DownloadUrl = $"{Request.Scheme}://{Request.Host}/api/homework/download/{Path.GetFileName(h.FilePath)}"
+            })
+            .ToListAsync();
+
+        // If no homeworks found
+        if (!homeworks.Any())
+            return NotFound("No homeworks assigned to the student.");
+
+        return Ok(homeworks);
+    }
+
+
+    [HttpGet("homeworks-by-teacher/{teacherId}")]
+    public async Task<IActionResult> GetHomeworksByTeacher(int teacherId)
+    {
+        var homeworks = await _context.homeworks
+            .Where(h => h.teacherId == teacherId)
+            .Select(h => new
+            {
+                h.Id,
+                h.Subject,
+                h.Type,
+                h.StartDate,
+                h.EndDate,
+                h.AssignedToAll,
+                h.FilePath,
+                DownloadUrl = $"{Request.Scheme}://{Request.Host}/api/homework/download/{Path.GetFileName(h.FilePath)}"
+            })
+            .ToListAsync();
+
+        if (!homeworks.Any())
+            return NotFound("No homeworks found for this teacher.");
+
+        return Ok(homeworks);
+    }
+
+
 }
-
-
-
-

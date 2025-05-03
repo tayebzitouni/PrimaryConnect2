@@ -51,7 +51,6 @@ namespace PrimaryConnect.Controllers
             // Save metadata to DB
             var document = dto.ToDocument();
             document.FileName = fileName;
-
             document.Type = Path.GetExtension(fileName);
             document.Date = DateTime.Now.ToString("yyyy-MM-dd");
             document.UploaderRole = HttpContext.Session.GetString("Role");
@@ -201,13 +200,21 @@ namespace PrimaryConnect.Controllers
                 .Where(d => d.UploaderRole == "Teacher")
                 .ToListAsync();
 
-            var result = documents.Select(doc => new DocumentDto
+            var result = documents.Select(doc => new
             {
-                Id = doc.Id,
-                Description = doc.Dsecription,
-                title = doc.title,
+                // Copy all properties from Document
+                doc.Id,
+                doc.title,
+                doc.Dsecription,
+                doc.Date,       // if you have this or others, add here
+                doc.Type,
+                doc.personid,
+                doc.IsApproved,// example additional fields
+
+                // Add the DownloadUrl
                 DownloadUrl = $"{Request.Scheme}://{Request.Host}/api/SubmittedDocument/download/{doc.Id}"
             }).ToList();
+
 
             return Ok(result);
         }
@@ -218,13 +225,22 @@ namespace PrimaryConnect.Controllers
                 .Where(d => d.UploaderRole == "Parent")
                 .ToListAsync();
 
-            var result = documents.Select(doc => new DocumentDto
+            var result = documents.Select(doc => new
             {
-                Id = doc.Id,
-                title= doc.title,
-                Description = doc.Dsecription,
+                // Copy all properties from Document
+                doc.Id,
+                doc.title,
+                doc.Dsecription,
+                doc.Date,       // if you have this or others, add here
+                doc.Type,
+                doc.personid,
+                doc.IsApproved,
+                // example additional fields
+
+                // Add the DownloadUrl
                 DownloadUrl = $"{Request.Scheme}://{Request.Host}/api/SubmittedDocument/download/{doc.Id}"
             }).ToList();
+
 
             return Ok(result);
         }

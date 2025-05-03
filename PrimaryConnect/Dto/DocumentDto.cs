@@ -18,6 +18,7 @@ namespace PrimaryConnect.Dto
             student.Dsecription = Description;
             // student.ParentId = parentId;
             student.File = File;
+           
             return student;
         }
     }

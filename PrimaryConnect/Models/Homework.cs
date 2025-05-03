@@ -8,8 +8,8 @@
         public string Type { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public int? UserId { get; set; }  // The user to whom the homework is assigned
-        public int? ClassId { get; set; }  // The class/group for the homework (optional)
+        public int teacherId { get; set; }  // The user to whom the homework is assigned
+        public int [] ?ClassId { get; set; }  // The class/group for the homework (optional)
         public bool AssignedToAll { get; set; }  // Flag indicating if assigned to all users of the class
     }
 }

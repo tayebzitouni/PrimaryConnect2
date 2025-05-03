@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PrimaryConnect.Data;
 
@@ -10,9 +11,11 @@ using PrimaryConnect.Data;
 namespace PrimaryConnect.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250424095601_sds5")]
+    partial class sds5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
@@ -420,9 +423,6 @@ namespace PrimaryConnect.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("AssignedToall")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -430,9 +430,6 @@ namespace PrimaryConnect.Migrations
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("TeacherRemark")
                         .IsRequired()
@@ -442,16 +439,7 @@ namespace PrimaryConnect.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("date")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("level")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("TeacherId");
 
                     b.ToTable("resources");
                 });
@@ -731,17 +719,6 @@ namespace PrimaryConnect.Migrations
                         .IsRequired();
 
                     b.Navigation("Person");
-                });
-
-            modelBuilder.Entity("PrimaryConnect.Models.Resource", b =>
-                {
-                    b.HasOne("PrimaryConnect.Models.Teacher", "teacher")
-                        .WithMany()
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("teacher");
                 });
 
             modelBuilder.Entity("PrimaryConnect.Models.Student", b =>

@@ -29,6 +29,7 @@ namespace PrimaryConnect.Models
         public ICollection< Courses> Courses { get; set; }
         public ICollection<Teacher_Student> Teachers_students { get; set; }
         public ICollection  <Event_Student> envent_student { get; set; }
+        
         #endregion
     }
 }
