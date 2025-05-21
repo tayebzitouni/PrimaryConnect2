@@ -9,6 +9,8 @@
         public double History { get; set; }
         public double Geography { get; set; }
         public double Physical { get; set; }
-        public double Average { get; set; }
+       // public double Average { get; set; }
+        public double Average =>
+        Math.Round((Mathematics + Science + English + French + History + Geography + Physical) / 7, 2);
     }
 }

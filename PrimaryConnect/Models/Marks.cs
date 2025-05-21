@@ -14,7 +14,7 @@ namespace PrimaryConnect.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         
-       public int mark { get; set; }
+       public double mark { get; set; }
         
         
  

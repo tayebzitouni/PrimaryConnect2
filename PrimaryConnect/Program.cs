@@ -207,7 +207,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 // ✅ Appliquer CORS avant Authorization

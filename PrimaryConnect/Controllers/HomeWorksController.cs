@@ -24,7 +24,7 @@ public class HomeworkController : ControllerBase
     [HttpPost("assign-homework")]
     public async Task<IActionResult> AssignHomework([FromForm] HomeworkUploadRequest dto)
     {
-        if (dto.File == null || dto.ClassId == null || !dto.ClassId.Any())
+        if (dto.File == null)
             return BadRequest("File and at least one ClassId are required.");
 
         // Correct way to get UserId

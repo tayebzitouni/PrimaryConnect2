@@ -14,7 +14,7 @@ using System.Reflection.Emit;
 
 namespace PrimaryConnect.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Student")]
     [ApiController]
     public class StudentsController : ControllerBase
     {
@@ -104,65 +104,7 @@ namespace PrimaryConnect.Controllers
 
             return NoContent(); // 204 No Content
         }
-        //ExcelPackage.License.SetNonCommercialOrganization("My Noncommercial organization");
-        //[HttpGet("download-student-template")]
-        //public IActionResult DownloadStudentTemplate()
-        //{
-        //    ExcelPackage.License.SetNonCommercialOrganization("My Noncommercial organization");
-
-        //    using (var package = new ExcelPackage())
-        //    {
-        //        var sheet = package.Workbook.Worksheets.Add("Students");
-
-        //        // Headers
-        //        sheet.Cells[1, 1].Value = "Name";
-        //        sheet.Cells[1, 2].Value = "Degree";
-        //        sheet.Cells[1, 3].Value = "ParentName";
-        //        sheet.Cells[1, 4].Value = "SchoolName";
-        //        sheet.Cells[1, 5].Value = "ClassName";
-
-        //        var options = package.Workbook.Worksheets.Add("Options");
-
-        //        // === Fill Options Sheet ===
-        //        var schools = _PrimaryConnect_Db.schools.Select(s => s.Name).ToList();
-        //        var parents = _PrimaryConnect_Db.Parents.Select(p => p.Name).ToList();
-        //        var classes = _PrimaryConnect_Db.Classes.Select(c => c.name).ToList();
-
-        //        // School names in column A
-        //        for (int i = 0; i < schools.Count; i++)
-        //            options.Cells[i + 1, 1].Value = schools[i];
-        //        options.Names.Add("SchoolList", options.Cells[$"A1:A{schools.Count}"]);
-
-        //        // Parent names in column B
-        //        for (int i = 0; i < parents.Count; i++)
-        //            options.Cells[i + 1, 2].Value = parents[i];
-        //        options.Names.Add("ParentList", options.Cells[$"B1:B{parents.Count}"]);
-
-        //        // Class names in column C
-        //        for (int i = 0; i < classes.Count; i++)
-        //            options.Cells[i + 1, 3].Value = classes[i];
-        //        options.Names.Add("ClassList", options.Cells[$"C1:C{classes.Count}"]);
-
-        //        // === Add Dropdowns to Students Sheet ===
-        //        var parentValidation = sheet.DataValidations.AddListValidation("C2:C100");
-        //        parentValidation.Formula.ExcelFormula = "=ParentList";
-
-        //        var schoolValidation = sheet.DataValidations.AddListValidation("D2:D100");
-        //        schoolValidation.Formula.ExcelFormula = "=SchoolList";
-
-        //        var classValidation = sheet.DataValidations.AddListValidation("E2:E100");
-        //        classValidation.Formula.ExcelFormula = "=ClassList";
-
-        //        // Hide Options Sheet
-        //        options.Hidden = eWorkSheetHidden.VeryHidden;
-
-        //        // Return file
-        //        var stream = new MemoryStream();
-        //        package.SaveAs(stream);
-        //        stream.Position = 0;
-
-        //        return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "StudentUploadTemplate.xlsx");
-        //    }
+       
 
 
         [HttpGet("download-student-template")]
@@ -249,6 +191,24 @@ namespace PrimaryConnect.Controllers
 
             return Ok(new { Added = students.Count });
         }
+
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpGet("ByParent/{Parentid}", Name = "GetStudentsByParenId")]
+        public async Task<ActionResult<Student_Dto>> GetStudentsByParentId(int Parentid)
+        {
+            var admin = await _PrimaryConnect_Db.Students.Where(p => p.ParentId == Parentid).ToListAsync();
+
+            if (admin == null)
+            {
+                return NotFound("There is no Students To this Teacher");
+            }
+
+            return Ok(admin);
+        }
+
+
 
 
     }
